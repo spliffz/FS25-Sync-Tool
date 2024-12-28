@@ -108,6 +108,9 @@ app.whenReady().then(() => {
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createWindow(opts)
   })
+
+  welcomeText()
+
 })
 
 // Quit when all windows are closed, except on macOS. There, it's common
@@ -293,9 +296,10 @@ import md5File from 'md5-file'
 import electronSquirrelStartup from 'electron-squirrel-startup'
 
 
-
 export async function checkMods() {
   function checkIfDone() {
+    // console.log('dlMods: ' + downloadedMods)
+    // console.log('mgList: ' + mergedListForDownload.length)
     if (downloadedMods === mergedListForDownload.length) {
       // console.log('I don\'t know anymore.')
       writeLog('')
@@ -312,7 +316,6 @@ export async function checkMods() {
     checkIfDone()
   }
   
-  welcomeText()
 
   writeLog("Checking mods for updates or additions...")
   writeLog('Please do not close the program.')
@@ -330,6 +333,12 @@ export async function checkMods() {
   //return
   // merge lists for download
   let mergedListForDownload = mergeListsForDownload(updatableMods, newModsToAdd)
+  if (mergedListForDownload.length == 0) {
+    writeLog(mergedListForDownload.length + ' mods to be downloaded.')
+    writeLog('')
+    writeLog('All Done! You can start your game now. Enjoy!')
+    return
+  }
   console.log(mergedListForDownload)
   let downloadedMods = 0;
   let downloadModsFromServer = new Promise(function(resolve, reject) {

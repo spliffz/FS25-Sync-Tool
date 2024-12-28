@@ -1,6 +1,6 @@
 {
   "name": "fs25-sync-tool",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "FS25 Mod Synchronize Tool - Private use",
   "main": "./out/main/index.js",
   "author": "Spliffz",
