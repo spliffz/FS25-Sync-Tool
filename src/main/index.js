@@ -32,8 +32,8 @@ if (fs.existsSync(oneDrivePath)) {
 // for auto updates, leave be.
 const gitRepo = 'FS25-Sync-Tool'
 const gitOwner = 'Spliffz'
+// read-only key, sorry.
 const GH_TOKEN_token = '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'
-// const GH_TOKEN_token = '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'
 
 
 // -------------------------------------------------------
