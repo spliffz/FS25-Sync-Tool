@@ -66,6 +66,11 @@ function createWindow(opts) {
 //let win
 
 app.whenReady().then(() => {
+
+  // squirrel startup fix
+  if (require('electron-squirrel-startup')) {
+    app.quit()
+  }
   //let opts = {show: false}
   Object.assign(opts, config.get('winBounds'))
   // Set app user model id for windows
