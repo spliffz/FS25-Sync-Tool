@@ -14,7 +14,12 @@ const config = new Config()
 
 // -------------------------------------------------------
 // ### USER VARIABLES
-const serverUrl = 'http://fs25.rotjong.xyz' 
+
+
+// -------------------------------------------------------
+// ### DON'T TOUCH
+const modserverUrl = config.get('modserverHostname')
+const serverUrl = modserverUrl 
 const dlUrl = serverUrl + '/mods/'
 const oneDrivePath = os.homedir+'\\OneDrive\\Documents\\'
 let modsPath = ''
@@ -27,7 +32,8 @@ if (fs.existsSync(oneDrivePath)) {
 // for auto updates, leave be.
 const gitRepo = 'FS25-Sync-Tool'
 const gitOwner = 'Spliffz'
-const GH_TOKEN_token = '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'
+const GH_TOKEN_token = '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'
+// const GH_TOKEN_token = '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'
 
 
 // -------------------------------------------------------
@@ -38,6 +44,9 @@ process.env.GH_TOKEN = GH_TOKEN_token
 function writeLog(msg) {
   mainWindow.send('IPC_sendToLog', { data: msg })
   // BrowserWindow.getFocusedWindow().webContents.send('IPC_sendToLog', { data: msg })
+}
+function IPC_sendModserverUrl(msg) {
+  mainWindow.send('getModserverUrl', { data: msg })
 }
 
 const opts = {
@@ -54,7 +63,8 @@ const opts = {
   }
 }
 
-let mainWindow = ''
+let mainWindow = null
+
 function createWindow(opts) {
   mainWindow = new BrowserWindow(opts)
   // Create the browser window.
@@ -123,7 +133,14 @@ app.whenReady().then(() => {
   })
 
   ipcMain.on('welcome', () => {
+    IPC_sendModserverUrl(modserverUrl)
     welcomeText()
+  })
+
+  ipcMain.on('saveModserverUrl', (event, props) => {
+    console.log(props)
+    config.set('modserverHostname', props)
+    writeLog('Changed Modserver URL to: ' + props)
   })
 
   createWindow(opts)
@@ -313,7 +330,10 @@ import fs, { write } from 'fs'
 import os from 'os'
 import nodePath from 'path'
 import md5File from 'md5-file'
-import electronSquirrelStartup from 'electron-squirrel-startup'
+
+
+
+
 
 
 export async function checkMods() {
@@ -336,6 +356,11 @@ export async function checkMods() {
     checkIfDone()
   }
   
+
+  // need to have a hostname set before it can do anything
+  if (modserverUrl === '') {
+    return
+  }
 
   writeLog("Checking mods for updates or additions...")
   writeLog('Please do not close the program.')

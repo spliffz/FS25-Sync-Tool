@@ -28,9 +28,6 @@ body {
   overflow-x: auto;
   scrollbar-width: thin;
   scrollbar-color: #000000a3;
-  scrollbar-base-color: #000000a3;
-  scrollbar-face-color: #000000a3;
-  scrollbar-track-color: #000000a3;
   border-radius: 5px;
   padding-left: 10px;
 }
