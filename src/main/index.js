@@ -14,6 +14,24 @@ const config = new Config()
 process.env.GH_TOKEN = GH_TOKEN_token
 
 
+// -------------------------------------------------------
+// ### USER VARIABLES
+const serverUrl = 'http://fs25.rotjong.xyz' 
+const gitRepo = 'FS25-Sync-Tool'
+const gitOwner = 'Spliffz'
+const dlUrl = serverUrl + '/mods/'
+const oneDrivePath = os.homedir+'\\OneDrive\\Documents\\'
+let modsPath = ''
+if (fs.existsSync(oneDrivePath)) {
+  modsPath = os.homedir+'\\OneDrive\\Documents\\My Games\\FarmingSimulator2025\\mods\\'
+} else {
+  modsPath = os.homedir+'\\Documents\\My Games\\FarmingSimulator2025\\mods\\'
+}
+
+
+// -------------------------------------------------------
+
+
 // IPC Send
 function writeLog(msg) {
   mainWindow.send('IPC_sendToLog', { data: msg })
@@ -75,8 +93,8 @@ app.whenReady().then(() => {
 
   autoUpdater.setFeedURL({
     provider: 'github',
-    repo: 'fs25-sync-tool',
-    owner: 'Spliffz',
+    repo: gitRepo,
+    owner: gitOwner,
     private: true,
     token: GH_TOKEN_token
   })
@@ -126,20 +144,15 @@ app.on('window-all-closed', () => {
   }
 })
 
+
 // In this file you can include the rest of your app"s specific main process
 // code. You can also put them in separate files and require them here.
 
-// ### MAIN VARIABLES
-const serverUrl = 'http://fs25.rotjong.xyz' 
-const dlUrl = serverUrl + '/mods/'
-const oneDrivePath = os.homedir+'\\OneDrive\\Documents\\'
-let modsPath = ''
-if (fs.existsSync(oneDrivePath)) {
-  modsPath = os.homedir+'\\OneDrive\\Documents\\My Games\\FarmingSimulator2025\\mods\\'
-} else {
-  modsPath = os.homedir+'\\Documents\\My Games\\FarmingSimulator2025\\mods\\'
-}
 
+
+
+
+// -------------------------------------------------------
 // ### MAIN FUNCTIONS
 async function getListFromServer() {
   // get json list from server
@@ -348,7 +361,8 @@ export async function checkMods() {
   let downloadedMods = 0;
   let downloadModsFromServer = new Promise(function(resolve, reject) {
     writeLog(mergedListForDownload.length + ' mods to be downloaded.')
-  
+    writeLog(mergedListForDownload)
+
     Promise.all(
       mergedListForDownload.map(async (el, idx) => {
         const n = idx + 1

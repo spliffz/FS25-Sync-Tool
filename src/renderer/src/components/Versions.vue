@@ -7,7 +7,7 @@ const versions = reactive({ ...window.electron.process.versions })
 <template>
   <ul class="versions">
     <li class="electron-version">FS25 Mod Sync Tool</li>
-    <li class="chrome-version">V1.0.5</li>
+    <li class="chrome-version">V1.0.6</li>
     <li class="node-version">Author: Spliffz, OSB Crew</li>
   </ul>
 </template>
