@@ -274,6 +274,7 @@ function formatProgress(progress) {
 }
 
 function welcomeText() {
+  writeLog('Hello ' + os.userInfo().username + '!')
   writeLog('Click the check mods button to start.')
 }
 
