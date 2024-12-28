@@ -2048,7 +2048,7 @@ electron-to-chromium@^1.5.73:
   resolved "https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.5.75.tgz"
   integrity sha512-Lf3++DumRE/QmweGjU+ZcKqQ+3bKkU/qjaKYhIJKEOhgIO9Xs6IiAQFkfFoj+RhgDk4LUeNsLo6plExHqSyu6Q==
 
-electron-updater@^6.1.7:
+electron-updater@^6.3.9:
   version "6.3.9"
   resolved "https://registry.npmjs.org/electron-updater/-/electron-updater-6.3.9.tgz"
   integrity sha512-2PJNONi+iBidkoC5D1nzT9XqsE8Q1X28Fn6xRQhO3YX8qRRyJ3mkV4F1aQsuRnYPqq6Hw+E51y27W75WgDoofw==

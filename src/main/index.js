@@ -4,7 +4,11 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import Axios from 'axios'
 import Config from 'electron-config'
+import { autoUpdater } from 'electron-updater'
+
 const config = new Config()
+
+process.env.GH_TOKEN = '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'
 
 const spliffz_debug = false // enabled debug console. set to false for production build!
 
@@ -71,6 +75,9 @@ app.whenReady().then(() => {
   if (require('electron-squirrel-startup')) {
     app.quit()
   }
+
+  autoUpdater.checkForUpdatesAndNotify()
+
   //let opts = {show: false}
   Object.assign(opts, config.get('winBounds'))
   // Set app user model id for windows
