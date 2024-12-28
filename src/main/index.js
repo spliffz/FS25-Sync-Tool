@@ -6,9 +6,10 @@ import Axios from 'axios'
 import Config from 'electron-config'
 import { autoUpdater } from 'electron-updater'
 
-const config = new Config()
 
-process.env.GH_TOKEN = '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'
+const config = new Config()
+const GH_TOKEN_token = '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'
+process.env.GH_TOKEN = GH_TOKEN_token
 
 const spliffz_debug = false // enabled debug console. set to false for production build!
 
@@ -71,11 +72,14 @@ function createWindow(opts) {
 
 app.whenReady().then(() => {
 
-  // squirrel startup fix
-  if (require('electron-squirrel-startup')) {
-    app.quit()
-  }
-
+  autoUpdater.setFeedURL({
+    provider: 'github',
+    repo: 'fs25-sync-tool',
+    owner: 'Spliffz',
+    private: true,
+    token: GH_TOKEN_token
+  })
+  
   autoUpdater.checkForUpdatesAndNotify()
 
   //let opts = {show: false}
@@ -274,10 +278,18 @@ function welcomeText() {
 }
 
 // ### MAIN CODE
+
+// squirrel startup fix
+// if (require('electron-squirrel-startup')) {
+//   app.quit()
+// }
+
+
 import fs, { write } from 'fs'
 import os from 'os'
 import nodePath from 'path'
 import md5File from 'md5-file'
+import electronSquirrelStartup from 'electron-squirrel-startup'
 
 
 

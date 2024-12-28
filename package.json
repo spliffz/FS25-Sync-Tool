@@ -1,6 +1,6 @@
 {
   "name": "fs25-sync-tool",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "FS25 Mod Synchronize Tool - Private use",
   "main": "./out/main/index.js",
   "author": "Spliffz",
@@ -12,7 +12,7 @@
   "scripts": {
     "format": "prettier --write .",
     "lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
-    "start": "electron-vite preview --outDir=dist",
+    "start": "electron-vite preview --outDir=out",
     "dev": "electron-vite dev --watch",
     "build": "electron-vite build",
     "postinstall": "electron-builder install-app-deps",
@@ -85,7 +85,9 @@
   },
   "build": {
     "win": {
-      "publish": ["github"]
+      "publish": [
+        "github"
+      ]
     }
   },
   "publish": [
