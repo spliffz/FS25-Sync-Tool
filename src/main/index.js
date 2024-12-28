@@ -6,12 +6,13 @@ import Axios from 'axios'
 import Config from 'electron-config'
 import { autoUpdater } from 'electron-updater'
 
+const GH_TOKEN_token = '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'
+const spliffz_debug = false // enabled debug console. set to false for production build!
+
 
 const config = new Config()
-const GH_TOKEN_token = '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'
 process.env.GH_TOKEN = GH_TOKEN_token
 
-const spliffz_debug = false // enabled debug console. set to false for production build!
 
 // IPC Send
 function writeLog(msg) {
@@ -101,6 +102,10 @@ app.whenReady().then(() => {
     checkMods()
   })
 
+  ipcMain.on('welcome', () => {
+    welcomeText()
+  })
+
   createWindow(opts)
 
   app.on('activate', function () {
@@ -109,7 +114,6 @@ app.whenReady().then(() => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow(opts)
   })
 
-  welcomeText()
 
 })
 
@@ -281,6 +285,7 @@ function welcomeText() {
   writeLog('Click the check mods button to start.')
 }
 
+
 // ### MAIN CODE
 
 // squirrel startup fix
@@ -383,6 +388,7 @@ export async function checkMods() {
     )
   })
 }
+
 
 
 

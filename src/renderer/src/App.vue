@@ -1,16 +1,14 @@
 <script setup>
 import Versions from './components/Versions.vue'
-//import Modlist from './components/Modlist.vue'
 import { ref } from 'vue'
-//import { ipcRenderer } from 'electron'
 
 // ### VARIABLES
-const serverUrl = 'http://fs25.rotjong.xyz'
 let logboxContents = ref('');
 
 
 // ### Functions
 const checkMods = () => window.electron.ipcRenderer.send('checkMods')
+const welcome = () => window.electron.ipcRenderer.send('welcome')
 //const ipcHandle = () => window.electron.ipcRenderer.send('ping')
 // const addToLogTest = () => writeLog(generateString(getRandomInt(32)))
 
@@ -45,9 +43,7 @@ function writeLog(msg) {
 }
 
 
-window.electron.ipcRenderer.on('IPC_sendModList', (event, props) => {
-  outdatedMods = [];
-})
+welcome()
 
 </script>
 
