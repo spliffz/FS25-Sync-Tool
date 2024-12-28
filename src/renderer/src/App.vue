@@ -11,6 +11,7 @@ const checkMods = () => window.electron.ipcRenderer.send('checkMods')
 const welcome = () => window.electron.ipcRenderer.send('welcome')
 //const ipcHandle = () => window.electron.ipcRenderer.send('ping')
 // const addToLogTest = () => writeLog(generateString(getRandomInt(32)))
+const saveModserverUrl = () => window.electron.ipcRenderer.send('saveModserverUrl')
 
 const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
@@ -33,6 +34,7 @@ window.electron.ipcRenderer.on('IPC_sendToLog', (event, props) => {
   console.log('F: Props.data: ' + props.data)
   writeLog(props.data)
 })
+
 function writeLog(msg) {
   const txt = msg + "<br />"
   logboxContents.value += txt
@@ -48,17 +50,26 @@ welcome()
 </script>
 
 <template>
+  <div class="logo_fs25_mst"><img src="./assets/fs25-sync-tool-logo.png" class="img" />
+    <div class="actions1">
+    <div class="action">
+      <input v-model="modserverUrl" type="text" placeholder="http://here.goes.your.website" />
+    </div>
+  </div>
   <div class="actions">
+    <div class="action">
+      <a target="_blank" rel="noreferrer" @click="saveModserverUrl">Save Hostname</a>
+    </div>
     <div class="action">
       <a target="_blank" rel="noreferrer" @click="checkMods">Check Mods</a>
     </div>
-<!--    <div class="action">
-      <a target="_blank" rel="noreferrer" @click="addToLogTest">add to log test</a>
-    </div>
-  -->
   </div>
+</div>
+
   <p></p>
-  <div v-html="logboxContents" id="logbox" class="logbox"></div>
+  <div class="logboxWrapper">
+    <div v-html="logboxContents" id="logbox" class="logbox"></div>
+  </div>
 
 <Versions />
 </template>

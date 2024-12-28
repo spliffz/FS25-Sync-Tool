@@ -6,19 +6,15 @@ import Axios from 'axios'
 import Config from 'electron-config'
 import { autoUpdater } from 'electron-updater'
 
-const GH_TOKEN_token = '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'
 const spliffz_debug = false // enabled debug console. set to false for production build!
 
 
 const config = new Config()
-process.env.GH_TOKEN = GH_TOKEN_token
 
 
 // -------------------------------------------------------
 // ### USER VARIABLES
 const serverUrl = 'http://fs25.rotjong.xyz' 
-const gitRepo = 'FS25-Sync-Tool'
-const gitOwner = 'Spliffz'
 const dlUrl = serverUrl + '/mods/'
 const oneDrivePath = os.homedir+'\\OneDrive\\Documents\\'
 let modsPath = ''
@@ -28,9 +24,15 @@ if (fs.existsSync(oneDrivePath)) {
   modsPath = os.homedir+'\\Documents\\My Games\\FarmingSimulator2025\\mods\\'
 }
 
+// for auto updates, leave be.
+const gitRepo = 'FS25-Sync-Tool'
+const gitOwner = 'Spliffz'
+const GH_TOKEN_token = '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'
+
 
 // -------------------------------------------------------
 
+process.env.GH_TOKEN = GH_TOKEN_token
 
 // IPC Send
 function writeLog(msg) {
@@ -40,7 +42,7 @@ function writeLog(msg) {
 
 const opts = {
   width: 780,
-  height: 430,
+  height: 460,
   show: false,
   autoHideMenuBar: true,
   ...(process.platform === 'linux' ? { icon } : {}),
@@ -61,7 +63,7 @@ function createWindow(opts) {
     mainWindow.webContents.openDevTools()
   }
   mainWindow.setResizable(false)
-  mainWindow.setBounds({ width: 780, height: 430 })
+  mainWindow.setBounds({ width: 780, height: 460 })
   
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()

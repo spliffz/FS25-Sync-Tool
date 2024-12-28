@@ -9,6 +9,13 @@
   width: 100%;
 }
 
+#app {
+}
+
+body {
+  background-size: contain !important;
+}
+
 .logbox {
   width: 720px;
   height: 210px;
@@ -18,9 +25,52 @@
   font-size: 10pt;
   padding: 6px;
   overflow-y: scroll;
+  overflow-x: auto;
   scrollbar-width: thin;
+  scrollbar-color: #000000a3;
+  scrollbar-base-color: #000000a3;
+  scrollbar-face-color: #000000a3;
+  scrollbar-track-color: #000000a3;
+  border-radius: 5px;
+  padding-left: 10px;
+}
+
+.logboxWrapper {
+  display: flex;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+input {
+  padding: 7px;
+  width: 300px;
+  border-radius: 5px;
+  border: 0px;
+  vertical-align: sub;
+  margin-top: 5px;
+  background-color: #000000a3;
+  color: #fff;
+}
+
+.img {
+  height: 100px
+}
+
+.logo_fs25_mst {
+  display: flex;
+  padding: 3px;
+}
+
+.actions {
+  align-items: center !important;
+  justify-content: center !important;
+  padding-top: 0px !important;
+}
+
+.versions {
+  position: relative !important;
+  bottom: 0px !important;
+  margin-top: 20px !important;
 }
 
 
-
-  
