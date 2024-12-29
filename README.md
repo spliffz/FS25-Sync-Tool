@@ -2,8 +2,7 @@
 ###### v1.1.0
    
 Syncs mods for Farming Simulator 25 accross multiple pc's.   
-Client-side programm.   
-Needs FS25_Storage_Server in combination usage.
+Client-side application.   
    
 Author: Spliffz <*thespliffz@gmail.com*>   
    
@@ -18,8 +17,8 @@ If it finds new or outdated mods it will automatically download them and overwri
 
 # [Requirements]
  - Farming Simulator 25.
- - Currently only supports Windows.
  - [FS25_Storage_Server](https://github.com/spliffz/FS25_Storage_Server).
+ - Currently only supports Windows.
 
 # [Installation]
  - Download the last build from [Releases](https://github.com/spliffz/FS25-Sync-Tool/releases).
