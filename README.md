@@ -26,7 +26,7 @@ If it finds new or outdated mods it will automatically download them and overwri
  - Click "Check Mods" and grab a coffee.
 
 # [Build it yourself]
-  - Clone the repo.
+  - Clone or download the repo.
   - Edit `package.json` to your liking.
   - Edit the USER VARIABLES in `src/main/index.js` located on line 12.
     - If you want to use a private github repo you can set `isPrivateRepo = true` and put your Access Token in the `GH_TOKEN_token` variable like this: `GH_TOKEN_token = 'YOUR_TOKEN_HERE'`.
@@ -35,6 +35,13 @@ If it finds new or outdated mods it will automatically download them and overwri
   - Run `npm install` to install the modules.
   - Run `npm run build:win` for building the windows client. It will be located in the `dist` folder.
   - See `package.json` for all runnable scripts and options.
+  - For publishing with electron-forge you need to edit `forge.config.js`.
+  - (Preferred) For publishing with electron-builder you need to put an Personal Access Token with read/write access to the repo and set it as a Environment Variable for the current Windows User.   
+  Easiest way of doing this is by using Powershell:   
+    1. Open a Powershell window (Start menu > powershell)
+    2. Paste or type this in there and hit enter:   
+    `[Environment]::SetEnvironmentVariable("GH_TOKEN","<TOKEN>","User")`   
+    with <TOKEN> being replaced by your Personal Access Token.
 
 
 
