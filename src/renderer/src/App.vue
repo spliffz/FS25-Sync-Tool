@@ -19,7 +19,7 @@ window.electron.ipcRenderer.on('IPC_sendToLog', (event, props) => {
 })
 
 function writeLog(msg) {
-  const txt = msg + "<br />"
+  const txt = msg + '\r\n'
   logboxContents.value += txt
   setTimeout(() => {
     const elem = document.getElementById('logbox')
@@ -28,7 +28,7 @@ function writeLog(msg) {
 }
 
 window.electron.ipcRenderer.on('getModserverUrl', (event, props) => {
-  console.log(props)
+  //console.log(props)
   modserverUrl = props.data
 })
 
@@ -56,7 +56,8 @@ welcome()
 
   <p></p>
   <div class="logboxWrapper">
-    <div v-html="logboxContents" id="logbox" class="logbox"></div>
+    <textarea v-model="logboxContents" id="logbox" class="logbox"></textarea>
+    <!-- <div v-html="logboxContents" id="logbox" class="logbox"></div> -->
   </div>
 
 <Versions />

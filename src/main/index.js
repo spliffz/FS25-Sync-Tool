@@ -4,17 +4,15 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import Axios from 'axios'
 import Config from 'electron-config'
+const config = new Config()
 import { autoUpdater } from 'electron-updater'
 
-const spliffz_debug = false // enabled debug console. set to false for production build!
-
-
-const config = new Config()
 
 
 // -------------------------------------------------------
 // ### USER VARIABLES
-
+const spliffz_debug = false // enabled debug console. set to false for production build!
+const isPrivateRepo = true // set if github private repo
 
 // -------------------------------------------------------
 // ### DON'T TOUCH
@@ -29,16 +27,18 @@ if (fs.existsSync(oneDrivePath)) {
   modsPath = os.homedir+'\\Documents\\My Games\\FarmingSimulator2025\\mods\\'
 }
 
-// for auto updates, leave be.
+// ### Private Github Repo Config
+// can be empty if unused
 const gitRepo = 'FS25-Sync-Tool'
 const gitOwner = 'Spliffz'
-// read-only key, sorry.
 const GH_TOKEN_token = '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'
 
 
 // -------------------------------------------------------
 
-process.env.GH_TOKEN = GH_TOKEN_token
+if (isPrivateRepo) {
+  process.env.GH_TOKEN = GH_TOKEN_token
+}
 
 // IPC Send
 function writeLog(msg) {
@@ -103,13 +103,15 @@ function createWindow(opts) {
 
 app.whenReady().then(() => {
 
-  autoUpdater.setFeedURL({
-    provider: 'github',
-    repo: gitRepo,
-    owner: gitOwner,
-    private: true,
-    token: GH_TOKEN_token
-  })
+  if (isPrivateRepo) {
+    autoUpdater.setFeedURL({
+      provider: 'github',
+      repo: gitRepo,
+      owner: gitOwner,
+      private: true,
+      token: GH_TOKEN_token
+    })
+  }
   
   autoUpdater.checkForUpdatesAndNotify()
 
@@ -184,6 +186,10 @@ async function getListFromServer() {
     const data = await fetched.json()
     //console.log(data)
     return data
+  } else {
+    console.log('getListFromServer(): Fetch went wrong! response: ' + fetched.status + ' | Text: ' + fetched.statusText)
+    writeLog("Couldn't get info from server. Response: " + fetched.status + " - " + fetched.statusText)
+    return false
   }
 }
 
@@ -259,25 +265,26 @@ async function checkForUpdates(localModList) {
       // console.log('urlPath: ' + serverUrl + urlPath)
 
       let fetched = await fetch(serverUrl + urlPath)
-      .then((res) => res.json())
-      .then((data) => {
-        //console.log(data)
-        if (data.msg == 'ok') {
+        .then((res) => res.json())
+        .then((data) => {
           //console.log(data)
-          if (data.update == 1) {
-           //console.log(data)
-            mlarray.push(data.name)
-            // return data.name
+          if (data.msg == 'ok') {
+            //console.log(data)
+            if (data.update == 1) {
+              //console.log(data)
+              mlarray.push(data.name)
+              // return data.name
+            }
           }
-        }
-      })
-      .catch((err) => {
-        console.log('error!: ' + el + err)
-      })
-      
+        })
+        .catch((err) => {
+          console.log('checkForUpdates(): Fetch went wrong! File: ' + el + ' | error: ' + err)
+          writeLog("Couldn't get info from server. File: " + el + ' - ' + err)
+        })
     })
   ).then(function(res) {
-    //console.log('res: ' + res)
+    // console.log('res: ' + res)
+    // return false
   })
 
   writeLog('Found ' + mlarray.length + ' outdated mods.')
@@ -294,7 +301,6 @@ function mergeListsForDownload(lml, sml) {
 
 async function getLocalModsList() {
   const localModList = getLocalModList()
-  //const localModListArray = localModList[0]
   return localModList[0]
 }
 
@@ -320,12 +326,6 @@ function welcomeText() {
 
 
 // ### MAIN CODE
-
-// squirrel startup fix
-// if (require('electron-squirrel-startup')) {
-//   app.quit()
-// }
-
 
 import fs, { write } from 'fs'
 import os from 'os'
@@ -369,14 +369,15 @@ export async function checkMods() {
   // get json list from server
   let getLocalModsListArray = await getLocalModsList()
   let serverModList = await getListFromServer()
+  if (!serverModList) {
+    return
+  }
   // lets divide: check for new mods first:
   let newModsToAdd = await checkForNewMods(serverModList, getLocalModsListArray)
   //console.log(typeof(newModsToAdd))
   //console.log(newModsToAdd)
   // then check for updates
   let updatableMods = await checkForUpdates(getLocalModsListArray)
-  console.log(updatableMods)
-  //return
   // merge lists for download
   let mergedListForDownload = mergeListsForDownload(updatableMods, newModsToAdd)
   if (mergedListForDownload.length == 0) {
@@ -386,7 +387,7 @@ export async function checkMods() {
     return
   }
   console.log(mergedListForDownload)
-  let downloadedMods = 0;
+  let downloadedMods = 0
   let downloadModsFromServer = new Promise(function(resolve, reject) {
     writeLog(mergedListForDownload.length + ' mods to be downloaded.')
     writeLog(mergedListForDownload)
@@ -394,7 +395,7 @@ export async function checkMods() {
     Promise.all(
       mergedListForDownload.map(async (el, idx) => {
         const n = idx + 1
-        console.log(idx+1 + ' - ' + el)
+        console.log(idx + 1 + ' - ' + el)
 
         const axios = Axios.create({
           baseURL: dlUrl,
