@@ -5,8 +5,10 @@ Syncs mods for Farming Simulator 25 accross multiple pc's.
 Client-side programm.   
 Needs FS25_Storage_Server in combination usage.
    
+A Electron + Vue.js application.   
+   
+![FS25 Mod Sync Tool by Spliffz](https://fs25.rotjong.xyz/fs25mst_01.png)
 
-![FS25 Mod Sync Tool by Spliffz](http://fs25.rotjong.xyz/fs25mst_01.png)
 
 
 # [How it works]
