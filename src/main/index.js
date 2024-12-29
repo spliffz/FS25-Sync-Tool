@@ -187,7 +187,7 @@ app.on('window-all-closed', () => {
 async function getListFromServer() {
   // get json list from server
   writeLog('Getting list from server...')
-  const urlPath = '/ajax.php?r=getModList';
+  const urlPath = '/ajax.php?getModList'
 
   let fetched = await fetch(serverUrl + urlPath)
   if (fetched.ok) {
@@ -269,7 +269,7 @@ async function checkForUpdates(localModList) {
   await Promise.all(
     localModList.map(async (el) => {
       //console.log(el)
-      const urlPath = '/ajax.php?r=checkMod&modname=' + el[0] + '&modhash=' + el[2] + '&size=' + el[3]
+      const urlPath = '/ajax.php?checkMod&modname=' + el[0] + '&modhash=' + el[2] + '&size=' + el[3]
       // console.log('urlPath: ' + serverUrl + urlPath)
 
       let fetched = await fetch(serverUrl + urlPath, {
