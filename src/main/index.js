@@ -18,7 +18,7 @@ const config = new Config()
 
 // -------------------------------------------------------
 // ### DON'T TOUCH
-const modserverUrl = config.get('modserverHostname')
+let modserverUrl = config.get('modserverHostname')
 const serverUrl = modserverUrl 
 const dlUrl = serverUrl + '/mods/'
 const oneDrivePath = os.homedir+'\\OneDrive\\Documents\\'
@@ -141,6 +141,7 @@ app.whenReady().then(() => {
     console.log(props)
     config.set('modserverHostname', props)
     writeLog('Changed Modserver URL to: ' + props)
+    modserverUrl = config.get('modserverHostname')
   })
 
   createWindow(opts)

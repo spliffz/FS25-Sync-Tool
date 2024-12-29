@@ -1,8 +1,6 @@
 <script setup>
 import Versions from './components/Versions.vue'
 import { ref } from 'vue'
-// import Config from 'electron-config'
-// const config = new Config()
 
 
 // ### VARIABLES
@@ -12,27 +10,8 @@ let logboxContents = ref('');
 // ### Functions
 const checkMods = () => window.electron.ipcRenderer.send('checkMods')
 const welcome = () => window.electron.ipcRenderer.send('welcome')
-//const ipcHandle = () => window.electron.ipcRenderer.send('ping')
-// const addToLogTest = () => writeLog(generateString(getRandomInt(32)))
 let modserverUrl = ''
 const saveModserverUrl = () => window.electron.ipcRenderer.send('saveModserverUrl', modserverUrl)
-
-const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-
-function getRandomInt(max) {
-  return Math.floor(Math.random() * max);
-}
-
-function generateString(length) {
-  let result = ' '
-  const charactersLength = characters.length
-  for ( let i = 0; i < length; i++ ) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength))
-  }
-
-  return result
-}
-
 
 window.electron.ipcRenderer.on('IPC_sendToLog', (event, props) => {
   console.log('F: Props.data: ' + props.data)
