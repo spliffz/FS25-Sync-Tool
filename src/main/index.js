@@ -12,13 +12,13 @@ import { autoUpdater } from 'electron-updater'
 // -------------------------------------------------------
 // ### USER VARIABLES
 const spliffz_debug = false // enabled debug console. set to false for production build!
-const isPrivateRepo = false // set if github private repo
 
 // ### Private Github Repo Config
-// can be empty if unused
+const isPrivateRepo = false // set if github private repo
+// can be empty if isPrivateRepo = false
 const gitRepo = 'FS25-Sync-Tool'
 const gitOwner = 'Spliffz'
-const GH_TOKEN_token = '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'
+const GH_TOKEN_token = ''
 
 
 

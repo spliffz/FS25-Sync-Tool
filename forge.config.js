@@ -33,7 +33,7 @@ module.exports = {
           name: 'fs25-sync-tool'
         },
         prerelease: true,
-        authToken: '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'
+        authToken: ''
       }
     }
   ]
