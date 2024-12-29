@@ -12,10 +12,23 @@ import { autoUpdater } from 'electron-updater'
 // -------------------------------------------------------
 // ### USER VARIABLES
 const spliffz_debug = false // enabled debug console. set to false for production build!
-const isPrivateRepo = true // set if github private repo
+const isPrivateRepo = false // set if github private repo
+
+// ### Private Github Repo Config
+// can be empty if unused
+const gitRepo = 'FS25-Sync-Tool'
+const gitOwner = 'Spliffz'
+const GH_TOKEN_token = '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'
+
+
+
+
+
 
 // -------------------------------------------------------
-// ### DON'T TOUCH
+// ### DON'T TOUCH FROM HERE.
+// THERE BE DRAGONS AND SUCH. JUST GO AWAY.
+// -------------------------------------------------------
 let modserverUrl = config.get('modserverHostname')
 const serverUrl = modserverUrl 
 const dlUrl = serverUrl + '/mods/'
@@ -27,11 +40,6 @@ if (fs.existsSync(oneDrivePath)) {
   modsPath = os.homedir+'\\Documents\\My Games\\FarmingSimulator2025\\mods\\'
 }
 
-// ### Private Github Repo Config
-// can be empty if unused
-const gitRepo = 'FS25-Sync-Tool'
-const gitOwner = 'Spliffz'
-const GH_TOKEN_token = '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'
 
 
 // -------------------------------------------------------
@@ -264,7 +272,9 @@ async function checkForUpdates(localModList) {
       const urlPath = '/ajax.php?r=checkMod&modname=' + el[0] + '&modhash=' + el[2] + '&size=' + el[3]
       // console.log('urlPath: ' + serverUrl + urlPath)
 
-      let fetched = await fetch(serverUrl + urlPath)
+      let fetched = await fetch(serverUrl + urlPath, {
+        signal: AbortSignal.timeout(120000)
+      })
         .then((res) => res.json())
         .then((data) => {
           //console.log(data)

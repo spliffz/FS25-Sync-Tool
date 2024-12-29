@@ -30,6 +30,7 @@ body {
   scrollbar-color: #000000a3;
   border-radius: 5px;
   padding-left: 10px;
+  resize: none;
 }
 
 .logboxWrapper {
