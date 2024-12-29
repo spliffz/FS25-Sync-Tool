@@ -2,7 +2,7 @@
 ###### v1.1.4
    
 Syncs mods for Farming Simulator 25 accross multiple pc's.   
-Client-side programm.   
+Client-side program.   
 Needs FS25_Storage_Server in combination usage.
    
 A Electron + Vue.js application.   
