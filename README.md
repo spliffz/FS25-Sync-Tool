@@ -2,32 +2,37 @@
 ###### v1.1.4
    
 Syncs mods for Farming Simulator 25 accross multiple pc's.   
-Client-side program.   
-Needs FS25_Storage_Server in combination usage.
+Client-side application.   
+Needs [FS25_Storage_Server](https://github.com/spliffz/FS25-Mod-Sync-Server) in combination usage.
    
-A Electron + Vue.js application.   
-   
-![FS25 Mod Sync Tool by Spliffz](https://fs25.rotjong.xyz/fs25mst_01.png)
+![FS25 Mod Sync Tool by Spliffz](http://fs25.rotjong.xyz/fs25mst_01.png)   
+
+---
+### [Features]
+  - Easy to use interface with a one-click solution.
+  - It accounts for the use of OneDrive.
+  - Auto updates to a new version on release.
+  - A smiling cow.
+  - My everlasting gratitude for using my software!
+
+### [How it works]
+It simply compares your mods folder (Located in *'My Documents\My Games\Farmingsimulator2025\mods'*) with the mods on the server running [FS25_Storage_Server](https://github.com/spliffz/FS25-Mod-Sync-Server).   
+If it finds new or updated mods it will automatically download them and overwrite the old ones.   
+Mods will **never** be deleted. This is by design so single player savegames won't get corrupted.
 
 
-
-# [How it works]
-It simply compares your mods folder (Located in *'My Documents\My Games\Farmingsimulator2025\mods'*) with the mods on the server running [FS25_Storage_Server](https://github.com/spliffz/FS25_Storage_Server).   
-If it finds new or outdated mods it will automatically download them and overwrite the old ones.
-
-
-# [Requirements]
+### [Requirements]
  - Farming Simulator 25.
  - Currently only supports Windows.
- - [FS25_Storage_Server](https://github.com/spliffz/FS25_Storage_Server).
+ - [FS25_Storage_Server](https://github.com/spliffz/FS25-Mod-Sync-Server).
 
-# [Installation]
+### [Installation]
  - Download the last build from [Releases](https://github.com/spliffz/FS25-Sync-Tool/releases).
  - Install it, it should launch after installation.
  - Enter your server hostname.
  - Click "Check Mods" and grab a coffee.
 
-# [Build it yourself]
+### [Build it yourself]
   - Clone or download the repo.
   - Edit `package.json` to your liking.
   - Edit the USER VARIABLES in `src/main/index.js` located on line 12.
@@ -41,11 +46,14 @@ If it finds new or outdated mods it will automatically download them and overwri
   - (Preferred) For publishing with electron-builder you need to put an Personal Access Token with read/write access to the repo and set it as a Environment Variable for the current Windows User.   
   Easiest way of doing this is by using Powershell:   
     1. Open a Powershell window (Start menu > powershell)
-    2. Paste or type this in there and hit enter:   
+    2. Paste or type and edit this in there and hit enter:   
     `[Environment]::SetEnvironmentVariable("GH_TOKEN","<TOKEN>","User")`   
-    with <TOKEN> being replaced by your Personal Access Token.
+    with `<TOKEN>` being replaced by your Personal Access Token.
 
-
+[Build with]
+  - Electron
+  - Vue.js
+  - Bootstrap
 
 
 
