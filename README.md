@@ -1,5 +1,5 @@
 # FS25 Sync Tool - readme.md
-###### v1.2.1
+###### v1.2.2
    
 Syncs mods for Farming Simulator 22 or 25 across multiple pc's.   
 Client-side application.   
@@ -59,7 +59,20 @@ Mods will **never** be deleted. This is by design so single player savegames won
   - Bootstrap
 
 
+### [Changelog]
+[v1.2.2]
+- Fixing the mess that was 1.2.1 *sigh* For some reason a lot was broken.
+So fixed the initial config, the urls, the path, the switching of version. Only not broken was the backup function -_-
 
+[v1.2.1]
+- New feature: Mod Backups. Disabled by default. If enabled it will make a backup named `*.backup` in the mods folder before updating it.
+- New Feature: Delete backups on disable mod backups. If chosen all the .backup files will be deleted upon switching Mod Backup to Disabled.
+
+[v1.2.0]
+- added settings page
+  - added support for FS22: you can now also use this for Farming Simulator 22.
+  - added mods folder location - for if you have it somewhere else like Z:\
+- added 'INFO' or 'ERROR' indicator for writeLog() messages
 
 
 

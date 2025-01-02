@@ -20,49 +20,8 @@ const gitOwner = 'Spliffz'
 const GH_TOKEN_token = ''
 
 
-
-
-
-
 // -------------------------------------------------------
-// ### DON'T TOUCH FROM HERE.
-// THERE BE DRAGONS AND SUCH. JUST GO AWAY.
-// -------------------------------------------------------
-let selectedFSVersion = config.get('selectedFSVersion');
-if (selectedFSVersion == '') {
-  selectedFSVersion = '25'
-}
-let pre = ''
-if (selectedFSVersion == '22') {
-  pre = 'fs22_'
-} else if (selectedFSVersion == '25') {
-  pre = 'fs25_'
-}
-
-let modserverUrl = config.get('modserverHostname')
-let modFolderPath = config.get(pre + 'modFolderLocation') + '\\'
-const serverUrl = modserverUrl 
-const dlUrl = serverUrl + '/mods/'
-const oneDrivePath = os.homedir + '\\OneDrive\\Documents\\'
-let modsPath = ''
-if (modFolderPath == '') {
-  if (fs.existsSync(oneDrivePath)) {
-    modsPath = os.homedir + '\\OneDrive\\Documents\\My Games\\FarmingSimulator2025\\mods\\'
-  } else {
-    modsPath = os.homedir + '\\Documents\\My Games\\FarmingSimulator2025\\mods\\'
-  }
-} else {
-  modsPath = modFolderPath
-}
-let backupEnabled = config.get('backupEnabled')
-if (backupEnabled == '') {
-  backupEnabled = 'disabled'
-}
-
 process.setMaxListeners(0)
-
-let deleteBackupFiles = false
-// -------------------------------------------------------
 
 if (isPrivateRepo) {
   process.env.GH_TOKEN = GH_TOKEN_token
@@ -171,7 +130,7 @@ app.whenReady().then(() => {
     checkMods()
   })
 
-  ipcMain.once('welcome', () => {
+  ipcMain.on('welcome', () => {
     IPC_sendModFolderPath()
     IPC_doBackupEnabled()
     IPC_sendModserverUrl(modserverUrl)
@@ -184,17 +143,20 @@ app.whenReady().then(() => {
     config.set('modserverHostname', props)
     writeLog('Changed Modserver URL to: ' + props, 'info')
     modserverUrl = config.get('modserverHostname')
+    setMainVars()
     IPC_sendModserverUrl(modserverUrl)
   })
   
   ipcMain.on('onDoBackupModsChange', (event, props) => {
     config.set('backupEnabled', props)
     backupEnabled = props
+    setMainVars()
     IPC_doBackupEnabled();
   })
 
   ipcMain.on('deleteBackupFiles',(event, props) => {
     deleteBackupFiles = true
+    setMainVars()
     deletingBackupFiles()
   })
   
@@ -242,6 +204,96 @@ app.on('window-all-closed', () => {
 // code. You can also put them in separate files and require them here.
 
 
+// some default values
+if(typeof config.get('selectedFSVersion') === 'undefined') {
+  config.set('selectedFSVersion', '')
+}
+if(typeof config.get('modserverHostname') === 'undefined') {
+  config.set('modserverHostname', '')
+}
+const oneDrivePath = os.homedir + '\\OneDrive\\Documents\\'
+let modsPath = ''
+if(typeof config.get('fs25_modFolderLocation') === 'undefined') {
+  if (fs.existsSync(oneDrivePath)) {
+    modsPath = os.homedir + '\\OneDrive\\Documents\\My Games\\FarmingSimulator2025\\mods\\'
+    // config.set(pre + 'modFolderLocation', modsPath)
+    config.set('fs25_modFolderLocation', modsPath)
+  } else {
+    modsPath = os.homedir + '\\Documents\\My Games\\FarmingSimulator2025\\mods\\'
+    // config.set(pre + 'modFolderLocation', modsPath)
+    config.set('fs25_modFolderLocation', modsPath)
+  }
+}
+if(typeof config.get('fs22_modFolderLocation') === 'undefined') {
+  if (fs.existsSync(oneDrivePath)) {
+    modsPath = os.homedir + '\\OneDrive\\Documents\\My Games\\FarmingSimulator2022\\mods\\'
+    // config.set(pre + 'modFolderLocation', modsPath)
+    config.set('fs22_modFolderLocation', modsPath)
+  } else {
+    modsPath = os.homedir + '\\Documents\\My Games\\FarmingSimulator2022\\mods\\'
+    // config.set(pre + 'modFolderLocation', modsPath)
+    config.set('fs22_modFolderLocation', modsPath)
+  }
+}
+if(typeof config.get('backupEnabled') === 'undefined') {
+  config.set('backupEnabled', 'disabled')
+}
+if(typeof config.get('winBounds') === 'undefined') { 
+  config.set('winBounds', '')
+}
+
+function setMainVars() {
+  serverUrl = config.get('modserverHostname')
+  modFolderPath = config.get('modFolderLocation')
+  backupEnabled = config.get('backupEnabled')
+  selectedFSVersion = config.get('selectedFSVersion')
+}
+
+function setDLUrl() {
+  return serverUrl + '/mods/'
+}
+// -------------------------------------------------------
+// ### DON'T TOUCH FROM HERE.
+// THERE BE DRAGONS AND SUCH. JUST GO AWAY.
+// -------------------------------------------------------
+let selectedFSVersion = config.get('selectedFSVersion');
+if (selectedFSVersion === '') {
+  selectedFSVersion = '25'
+  config.set('selectedFSVersion', selectedFSVersion)
+}
+let pre = ''
+if (selectedFSVersion === '22') {
+  pre = 'fs22_'
+} else if (selectedFSVersion === '25') {
+  pre = 'fs25_'
+}
+
+let modserverUrl = config.get('modserverHostname')
+let modFolderPath = config.get(pre + 'modFolderLocation')
+console.log(modFolderPath)
+console.log(typeof(modFolderPath))
+if (modFolderPath === '') {
+  if (fs.existsSync(oneDrivePath)) {
+    modsPath = os.homedir + '\\OneDrive\\Documents\\My Games\\FarmingSimulator20'+selectedFSVersion+'\\mods\\'
+    config.set(pre + 'modFolderLocation', modsPath)
+    // config.set('fs22_modFolderLocation', modsPath)
+  } else {
+    modsPath = os.homedir + '\\Documents\\My Games\\FarmingSimulator20'+selectedFSVersion+'\\mods\\'
+    config.set(pre + 'modFolderLocation', modsPath)
+    // config.set('fs22_modFolderLocation', modsPath)
+  }
+} else {
+  modsPath = modFolderPath
+}
+let serverUrl = modserverUrl 
+let dlUrl = setDLUrl()
+let backupEnabled = config.get('backupEnabled')
+if (backupEnabled === '') {
+  backupEnabled = 'disabled'
+}
+
+let deleteBackupFiles = false
+
 
 
 
@@ -278,6 +330,8 @@ function setVersion(version) {
   selectedFSVersion = version
   modsPath = modFolderPath
   IPC_sendModFolderPath()
+  console.log(modFolderPath)
+  setMainVars()
   writeLog('Using Folder: ' + modFolderPath, 'info')
 }
 
@@ -285,8 +339,9 @@ function setVersion(version) {
 async function getListFromServer() {
   // get json list from server
   writeLog('Getting list from server...')
+  serverUrl = config.get('modserverHostname')
   const urlPath = '/ajax.php?getModList'
-
+  console.log(serverUrl)
   let fetched = await fetch(serverUrl + urlPath)
   if (fetched.ok) {
     const data = await fetched.json()
@@ -531,6 +586,7 @@ export async function checkMods() {
           timeout: 20000
         })
 
+        dlUrl = setDLUrl()
         const url = dlUrl + el;
         const writer = fs.createWriteStream(modsPath + el);
 
