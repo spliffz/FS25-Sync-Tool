@@ -13,7 +13,7 @@
 }
 
 body {
-  background-size: contain !important;
+  background-size: cover !important;
 }
 
 .logbox {
@@ -50,6 +50,10 @@ input {
   color: #fff;
 }
 
+.form-control {
+  font-size: 0.8rem !important;
+}
+
 .img {
   height: 100px
 }
@@ -68,7 +72,52 @@ input {
 .versions {
   position: relative !important;
   bottom: 0px !important;
-  margin-top: 20px !important;
+  margin-top: 36px !important;
 }
 
+.tablistWrapper {
+  width: 90%;
+  margin: 0 auto;
+  height: 231px;
+}
 
+.nav-item {
+  background-color: #000000a3;
+  border-radius: 5px;
+}
+
+.nav-link {
+  color: #fff !important;
+}
+
+.nav-link.active {
+  background-color: #212529 !important;
+}
+
+.tab-content {
+  background-color: #000000a3;
+  border-radius: 5px;
+  padding: 10px;
+  padding-top: 0px;
+}
+.button_hostname {
+  background-color: #979797 !important;
+}
+
+.action a {
+  border-radius: 5px !important;
+  background-color: #2b8715 !important;
+}
+.action a:hover {
+  background-color: #ff3030 !important;
+}
+
+.table, .table-dark {
+  --bs-table-bg: #00000000 !important;
+  font-size: 0.8rem;
+}
+
+.input-group .btn {
+  background-color: #104501;
+  --bs-btn-hover-bg: #1a7401;
+}

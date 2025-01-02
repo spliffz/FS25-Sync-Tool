@@ -1,0 +1,6 @@
+
+[v1.2.0]
+- added settings page
+  - added fs22 option: you can now also use this for Farming Simulator 22.
+  - added mods folder location - for if you have it somewhere else like Z:\
+- added 'INFO' or 'ERROR' indicator for writeLog() messages

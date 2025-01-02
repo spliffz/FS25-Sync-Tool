@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, dialog, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
@@ -8,14 +8,13 @@ const config = new Config()
 import { autoUpdater } from 'electron-updater'
 
 
-
 // -------------------------------------------------------
 // ### USER VARIABLES
-const spliffz_debug = false // enabled debug console. set to false for production build!
+const spliffz_debug = true // enabled debug console. set to false for production build!
 
 // ### Private Github Repo Config
-const isPrivateRepo = false // set if github private repo
-// can be empty if isPrivateRepo = false
+const isPrivateRepo = false // set to true if you want to use a private github repo.
+// These can be empty if isPrivateRepo = false
 const gitRepo = 'FS25-Sync-Tool'
 const gitOwner = 'Spliffz'
 const GH_TOKEN_token = ''
@@ -29,18 +28,32 @@ const GH_TOKEN_token = ''
 // ### DON'T TOUCH FROM HERE.
 // THERE BE DRAGONS AND SUCH. JUST GO AWAY.
 // -------------------------------------------------------
-let modserverUrl = config.get('modserverHostname')
-const serverUrl = modserverUrl 
-const dlUrl = serverUrl + '/mods/'
-const oneDrivePath = os.homedir+'\\OneDrive\\Documents\\'
-let modsPath = ''
-if (fs.existsSync(oneDrivePath)) {
-  modsPath = os.homedir+'\\OneDrive\\Documents\\My Games\\FarmingSimulator2025\\mods\\'
-} else {
-  modsPath = os.homedir+'\\Documents\\My Games\\FarmingSimulator2025\\mods\\'
+let selectedFSVersion = config.get('selectedFSVersion');
+if (selectedFSVersion == '') {
+  selectedFSVersion = '25'
+}
+let pre = ''
+if (selectedFSVersion == '22') {
+  pre = 'fs22_'
+} else if (selectedFSVersion == '25') {
+  pre = 'fs25_'
 }
 
-
+let modserverUrl = config.get('modserverHostname')
+let modFolderPath = config.get(pre + 'modFolderLocation') + '\\'
+const serverUrl = modserverUrl 
+const dlUrl = serverUrl + '/mods/'
+const oneDrivePath = os.homedir + '\\OneDrive\\Documents\\'
+let modsPath = ''
+if (modFolderPath == '') {
+  if (fs.existsSync(oneDrivePath)) {
+    modsPath = os.homedir + '\\OneDrive\\Documents\\My Games\\FarmingSimulator2025\\mods\\'
+  } else {
+    modsPath = os.homedir + '\\Documents\\My Games\\FarmingSimulator2025\\mods\\'
+  }
+} else {
+  modsPath = modFolderPath
+}
 
 // -------------------------------------------------------
 
@@ -49,17 +62,25 @@ if (isPrivateRepo) {
 }
 
 // IPC Send
-function writeLog(msg) {
-  mainWindow.send('IPC_sendToLog', { data: msg })
+function IPC_sendFSVersion() {
+  mainWindow.send('IPC_sendFSVersion', { data: selectedFSVersion })
+}
+function IPC_sendModFolderPath() {
+  mainWindow.send('IPC_getModFolderPath', { data: modsPath })
+}
+function writeLog(msg, type=null) {
+  mainWindow.send('IPC_sendToLog', { data: msg, t: type })
   // BrowserWindow.getFocusedWindow().webContents.send('IPC_sendToLog', { data: msg })
 }
 function IPC_sendModserverUrl(msg) {
   mainWindow.send('getModserverUrl', { data: msg })
 }
 
+const width = 780
+const height = 480
 const opts = {
-  width: 780,
-  height: 460,
+  width: width,
+  height: height,
   show: false,
   autoHideMenuBar: true,
   ...(process.platform === 'linux' ? { icon } : {}),
@@ -81,7 +102,7 @@ function createWindow(opts) {
     mainWindow.webContents.openDevTools()
   }
   mainWindow.setResizable(false)
-  mainWindow.setBounds({ width: 780, height: 460 })
+  mainWindow.setBounds({ width: width, height: height })
   
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
@@ -107,8 +128,6 @@ function createWindow(opts) {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-//let win
-
 app.whenReady().then(() => {
 
   if (isPrivateRepo) {
@@ -143,15 +162,37 @@ app.whenReady().then(() => {
   })
 
   ipcMain.on('welcome', () => {
+    IPC_sendModFolderPath()
     IPC_sendModserverUrl(modserverUrl)
+    IPC_sendFSVersion()
     welcomeText()
   })
 
   ipcMain.on('saveModserverUrl', (event, props) => {
-    console.log(props)
+    // console.log(props)
     config.set('modserverHostname', props)
-    writeLog('Changed Modserver URL to: ' + props)
+    writeLog('Changed Modserver URL to: ' + props, 'info')
     modserverUrl = config.get('modserverHostname')
+  })
+
+  
+  ipcMain.on('locateModFolder', (event, props) => {
+    // console.log(props)
+    dialog.showOpenDialog({
+      properties: [
+        'openDirectory'
+      ]
+    }).then(result => {
+      // console.log(result)
+      config.set(pre + 'modFolderLocation', result.filePaths)
+      mainWindow.send('modFolderDialogLocation', result.filePaths)
+    })
+  })
+
+
+  ipcMain.on('versionChange', (event, props) => {
+    console.log(props)
+    setVersion(props)
   })
 
   createWindow(opts)
@@ -184,6 +225,22 @@ app.on('window-all-closed', () => {
 
 // -------------------------------------------------------
 // ### MAIN FUNCTIONS
+
+function setVersion(version) {
+  if (version == '22') {
+    pre = 'fs22_'
+  } else if (version == '25') {
+    pre = 'fs25_'
+  }
+  modFolderPath = config.get(pre + 'modFolderLocation')
+  config.set('selectedFSVersion', version)
+  selectedFSVersion = version
+  modsPath = modFolderPath
+  IPC_sendModFolderPath()
+  writeLog('Using Folder: ' + modFolderPath, 'info')
+}
+
+
 async function getListFromServer() {
   // get json list from server
   writeLog('Getting list from server...')
@@ -196,7 +253,7 @@ async function getListFromServer() {
     return data
   } else {
     console.log('getListFromServer(): Fetch went wrong! response: ' + fetched.status + ' | Text: ' + fetched.statusText)
-    writeLog("Couldn't get info from server. Response: " + fetched.status + " - " + fetched.statusText)
+    writeLog("Couldn't get info from server. Response: " + fetched.status + " - " + fetched.statusText, 'error')
     return false
   }
 }
@@ -232,7 +289,7 @@ async function checkForNewMods(servModList, localList) {
 }
 
 function getLocalModList() {
-  writeLog('Mods folder: ' + modsPath)
+  writeLog('Mods folder: ' + modsPath, 'info')
   console.log('Mods folder: ' + modsPath)
 
   let result = []
@@ -289,7 +346,7 @@ async function checkForUpdates(localModList) {
         })
         .catch((err) => {
           console.log('checkForUpdates(): Fetch went wrong! File: ' + el + ' | error: ' + err)
-          writeLog("Couldn't get info from server. File: " + el + ' - ' + err)
+          writeLog("Couldn't get info from server. File: " + el + ' - ' + err, 'error')
         })
     })
   ).then(function(res) {
@@ -331,6 +388,7 @@ function formatProgress(progress) {
 
 function welcomeText() {
   writeLog('Hello ' + os.userInfo().username + '!')
+  writeLog('Selected: Farming Simulator ' + selectedFSVersion + '.')
   writeLog('Click the check mods button to start.')
 }
 
@@ -363,7 +421,7 @@ export async function checkMods() {
 
   function downloadedModsIncr(filename) {
     downloadedMods++
-    writeLog('File ' + filename + ' downloaded successfully.');
+    writeLog('File ' + filename + ' downloaded successfully.', 'info');
     checkIfDone()
   }
   
@@ -421,7 +479,7 @@ export async function checkMods() {
           responseType: 'stream',
           onDownloadProgress: function ({loaded, total, progress, bytes, estimated, rate, download = true}) {
             // Do whatever you want with the Axios progress event
-            writeLog(el + ' ' + formatProgress(progress) + '% done')
+            writeLog(el + ' ' + formatProgress(progress) + '% done', 'info')
             console.log(el + ' ' + formatProgress(progress) + ', ' + formatBytes(bytes) + ' complete. [' + rate + ', ' + loaded + ', ' + total + ']')
           },
         }).then((response) => {

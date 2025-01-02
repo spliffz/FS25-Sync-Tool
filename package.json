@@ -1,7 +1,7 @@
 {
   "name": "fs25-sync-tool",
-  "version": "1.1.4",
-  "description": "FS25 Mods Synchronize Tool",
+  "version": "1.2.0",
+  "description": "FS22/25 Mods Synchronize Tool",
   "main": "./out/main/index.js",
   "author": "Spliffz",
   "homepage": "https://github.com/spliffz/FS25-Sync-Tool",
@@ -57,6 +57,7 @@
     "@electron-toolkit/preload": "^3.0.1",
     "@electron-toolkit/utils": "^3.0.0",
     "axios": "^1.7.9",
+    "bootstrap": "^5.3.3",
     "electron-config": "^1.0.0",
     "JSONStream": "^1.3.5",
     "md5-file": "^5.0.0"
