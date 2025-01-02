@@ -3,7 +3,7 @@
    
 Syncs mods for Farming Simulator 22 or 25 across multiple pc's.   
 Client-side application.   
-Needs [F25-Mod-Sync-Server](https://github.com/spliffz/FS25-Mod-Sync-Server) in combination usage.
+Needs [FS25-Mod-Sync-Server](https://github.com/spliffz/FS25-Mod-Sync-Server) in combination usage.
    
 ![FS25 Mod Sync Tool by Spliffz](http://fs25.rotjong.xyz/FS25-mst-01.png)   
 
@@ -17,7 +17,7 @@ Needs [F25-Mod-Sync-Server](https://github.com/spliffz/FS25-Mod-Sync-Server) in 
   - My everlasting gratitude for using my software!
 
 ### [How it works]
-It simply compares your mods folder (Located in *'My Documents\My Games\Farmingsimulator2025\mods'*) with the mods on the server running [F25-Mod-Sync-Server](https://github.com/spliffz/FS25-Mod-Sync-Server).   
+It simply compares your mods folder (Located in *'My Documents\My Games\Farmingsimulator2025\mods'*) with the mods on the server running [FS25-Mod-Sync-Server](https://github.com/spliffz/FS25-Mod-Sync-Server).   
 If it finds new or updated mods it will automatically download them and overwrite the old ones.   
 Mods will **never** be deleted. This is by design so single player savegames won't get corrupted.
 
@@ -25,7 +25,7 @@ Mods will **never** be deleted. This is by design so single player savegames won
 ### [Requirements]
  - Farming Simulator 22 or 25.
  - Currently only supports Windows.
- - [F25-Mod-Sync-Server](https://github.com/spliffz/FS25-Mod-Sync-Server).
+ - [FS25-Mod-Sync-Server](https://github.com/spliffz/FS25-Mod-Sync-Server).
 
 ### [Installation]
  - Download the last build from [Releases](https://github.com/spliffz/FS25-Sync-Tool/releases).
