@@ -1,6 +1,10 @@
+[v1.2.1]
+- New feature: Mod Backups. Disabled by default. If enabled it will make a backup named `*.backup` in the mods folder before updating it.
+- New Feature: Delete backups on disable mod backups. If chosen all the .backup files will be deleted upon switching Mod Backup to Disabled.
+
 
 [v1.2.0]
 - added settings page
-  - added fs22 option: you can now also use this for Farming Simulator 22.
+  - added support for FS22: you can now also use this for Farming Simulator 22.
   - added mods folder location - for if you have it somewhere else like Z:\
 - added 'INFO' or 'ERROR' indicator for writeLog() messages

@@ -54,7 +54,14 @@ if (modFolderPath == '') {
 } else {
   modsPath = modFolderPath
 }
+let backupEnabled = config.get('backupEnabled')
+if (backupEnabled == '') {
+  backupEnabled = 'disabled'
+}
 
+process.setMaxListeners(0)
+
+let deleteBackupFiles = false
 // -------------------------------------------------------
 
 if (isPrivateRepo) {
@@ -62,6 +69,9 @@ if (isPrivateRepo) {
 }
 
 // IPC Send
+function IPC_doBackupEnabled() {
+  mainWindow.send('IPC_doBackupEnabled', { data: backupEnabled })
+}
 function IPC_sendFSVersion() {
   mainWindow.send('IPC_sendFSVersion', { data: selectedFSVersion })
 }
@@ -161,20 +171,32 @@ app.whenReady().then(() => {
     checkMods()
   })
 
-  ipcMain.on('welcome', () => {
+  ipcMain.once('welcome', () => {
     IPC_sendModFolderPath()
+    IPC_doBackupEnabled()
     IPC_sendModserverUrl(modserverUrl)
     IPC_sendFSVersion()
     welcomeText()
   })
-
+  
   ipcMain.on('saveModserverUrl', (event, props) => {
     // console.log(props)
     config.set('modserverHostname', props)
     writeLog('Changed Modserver URL to: ' + props, 'info')
     modserverUrl = config.get('modserverHostname')
+    IPC_sendModserverUrl(modserverUrl)
+  })
+  
+  ipcMain.on('onDoBackupModsChange', (event, props) => {
+    config.set('backupEnabled', props)
+    backupEnabled = props
+    IPC_doBackupEnabled();
   })
 
+  ipcMain.on('deleteBackupFiles',(event, props) => {
+    deleteBackupFiles = true
+    deletingBackupFiles()
+  })
   
   ipcMain.on('locateModFolder', (event, props) => {
     // console.log(props)
@@ -191,7 +213,7 @@ app.whenReady().then(() => {
 
 
   ipcMain.on('versionChange', (event, props) => {
-    console.log(props)
+    // console.log(props)
     setVersion(props)
   })
 
@@ -225,6 +247,25 @@ app.on('window-all-closed', () => {
 
 // -------------------------------------------------------
 // ### MAIN FUNCTIONS
+
+function deletingBackupFiles() {
+  writeLog('Deleting backup files...', 'info')
+
+  let files = fs.readdirSync(modsPath, { withFileTypes: true }) // (error, files) => {
+
+  files.forEach((file) => {
+    if (file.name.endsWith('.zip.backup')) {
+      fs.unlink(modsPath + file.name, (err) => {
+        if (err) {
+          console.log('deletingBackupFiles: ' + err);
+          return
+        }
+      })
+    }
+  })
+      
+  writeLog('Backup Files Deleted.', 'info')
+}
 
 function setVersion(version) {
   if (version == '22') {
@@ -404,6 +445,20 @@ import md5File from 'md5-file'
 
 
 
+async function backupMod(mod) {
+  // console.log(mod)
+  writeLog('Making backup of file ' + mod, 'info')
+  const newMod = mod + '.backup'
+  try {
+    fs.copyFileSync(modsPath + mod, modsPath + newMod)
+
+    console.log('backup of ' + mod + ' completed.')
+  } catch (err) {
+    if (err) throw err
+    console.log(err)
+  }
+
+}
 
 export async function checkMods() {
   function checkIfDone() {
@@ -462,6 +517,12 @@ export async function checkMods() {
 
     Promise.all(
       mergedListForDownload.map(async (el, idx) => {
+
+        // console.log('el: ' + el)
+        if (backupEnabled == 'enabled') {
+          await backupMod(el)
+        }
+
         const n = idx + 1
         console.log(idx + 1 + ' - ' + el)
 

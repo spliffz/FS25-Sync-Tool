@@ -1,9 +1,9 @@
 # FS25 Sync Tool - readme.md
-###### v1.2.0
+###### v1.2.1
    
 Syncs mods for Farming Simulator 22 or 25 across multiple pc's.   
 Client-side application.   
-Needs [FS25-Mod-Sync-Server](https://github.com/spliffz/FS25-Mod-Sync-Server) in combination usage.
+Needs [F25-Mod-Sync-Server](https://github.com/spliffz/FS25-Mod-Sync-Server) in combination usage.
    
 ![FS25 Mod Sync Tool by Spliffz](http://fs25.rotjong.xyz/FS25-mst-01.png)   
 
@@ -13,11 +13,12 @@ Needs [FS25-Mod-Sync-Server](https://github.com/spliffz/FS25-Mod-Sync-Server) in
   - Easy to use (ugly) interface. 
   - It accounts for the use of OneDrive or custom location.
   - Auto updates to a new version on release.
+  - Ability to backup mods before updating.
   - A smiling cow.
   - My everlasting gratitude for using my software!
 
 ### [How it works]
-It simply compares your mods folder (Located in *'My Documents\My Games\Farmingsimulator2025\mods'*) with the mods on the server running [FS25-Mod-Sync-Server](https://github.com/spliffz/FS25-Mod-Sync-Server).   
+It simply compares your mods folder (Located in *'My Documents\My Games\Farmingsimulator2025\mods'*) with the mods on the server running [F25-Mod-Sync-Server](https://github.com/spliffz/FS25-Mod-Sync-Server).   
 If it finds new or updated mods it will automatically download them and overwrite the old ones.   
 Mods will **never** be deleted. This is by design so single player savegames won't get corrupted.
 
@@ -25,7 +26,7 @@ Mods will **never** be deleted. This is by design so single player savegames won
 ### [Requirements]
  - Farming Simulator 22 or 25.
  - Currently only supports Windows.
- - [FS25-Mod-Sync-Server](https://github.com/spliffz/FS25-Mod-Sync-Server).
+ - [F25-Mod-Sync-Server](https://github.com/spliffz/FS25-Mod-Sync-Server).
 
 ### [Installation]
  - Download the last build from [Releases](https://github.com/spliffz/FS25-Sync-Tool/releases).
@@ -37,11 +38,11 @@ Mods will **never** be deleted. This is by design so single player savegames won
 ### [Build it yourself]
   - Clone or download the repo.
   - Edit `package.json` to your liking.
-  - Run `npm install` to install the modules.
   - Edit the USER VARIABLES in `src/main/index.js` located on line 12.
     - If you want to use a private github repo you can set `isPrivateRepo = true` and put your Access Token in the `GH_TOKEN_token` variable like this: `GH_TOKEN_token = 'YOUR_TOKEN_HERE'`.
     You can get an access token from   
     `Github Settings > Applications > My Github Apps > Personal Access Tokens > Fine-grained tokens`.
+  - Run `npm install` to install the modules.
   - Run `npm run build:win` for building the windows client. It will be located in the `dist` folder.
   - See `package.json` for all runnable scripts and options.
   - For publishing with electron-forge you need to edit `forge.config.js`.
@@ -56,3 +57,11 @@ Mods will **never** be deleted. This is by design so single player savegames won
   - Electron
   - Vue.js
   - Bootstrap
+
+
+
+
+
+
+
+

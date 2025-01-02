@@ -2,19 +2,31 @@
 import Versions from './components/Versions.vue'
 import { ref } from 'vue'
 import * as bootstrap from 'bootstrap'
+import { ModalsContainer, useModal } from 'vue-final-modal'
+import Modal_backupDisabled from './components/Modal_backupDisabled.vue'
+
 
 // ### VARIABLES
 let logboxContents = ref('')
 let modFolderPath = ref('')
 let gameVersion = ref('')
 let modserverUrl = ''
+let doBackupMods = ref('')
 
 // ### Functions
 const checkMods = () => window.electron.ipcRenderer.send('checkMods')
 const welcome = () => window.electron.ipcRenderer.send('welcome')
 const saveModserverUrl = () => window.electron.ipcRenderer.send('saveModserverUrl', modserverUrl)
 const locateModFolder = () => window.electron.ipcRenderer.send('locateModFolder')
+const deleteBackupFiles = () => window.electron.ipcRenderer.send('deleteBackupFiles')
 
+
+
+
+window.electron.ipcRenderer.on('IPC_doBackupEnabled', (event, props) => {
+  // console.log(props)
+  doBackupMods.value = props.data
+})
 
 window.electron.ipcRenderer.on('IPC_sendFSVersion', (event, props) => {
   // console.log(props)
@@ -35,6 +47,26 @@ window.electron.ipcRenderer.on('IPC_getModFolderPath', (event, props) => {
   // console.log(props)
   modFolderPath.value = props.data
 })
+
+const { open, close } = useModal({
+  component: Modal_backupDisabled,
+  attrs: {
+    title: 'Delete Backup files?',
+    onYes() {
+      deleteBackupFiles()
+      // console.log('confirm!')
+      close()
+    },
+    onNo() {
+      close()
+    }
+  },
+  slots: {
+    default: '<p>Do you want to delete all the backups too?</p>',
+  },
+})
+
+
 
 function writeLog(msg, type=null) {
   let pre = ''
@@ -61,6 +93,17 @@ function onVersionChange() {
   window.electron.ipcRenderer.send('versionChange', gameVersion.value)
 }
 
+function onDoBackupModsChange() {
+  writeLog('Mod Backups ' + doBackupMods.value, 'info')
+  if (doBackupMods.value == 'disabled') {
+    open().then(() => {
+      window.electron.ipcRenderer.send('onDoBackupModsChange', doBackupMods.value)
+      return
+    })
+  }
+  window.electron.ipcRenderer.send('onDoBackupModsChange', doBackupMods.value)
+}
+
 // ### Main Code
 welcome()
 
@@ -79,7 +122,7 @@ welcome()
       <a target="_blank" rel="noreferrer" @click="saveModserverUrl" class="button_hostname">Save Hostname</a>
     </div>
     <div class="action">
-      <a target="_blank" rel="noreferrer" @click="checkMods">Check Mods</a>
+      <a target="_blank" rel="noreferrer" @click="checkMods">Sync Mods</a>
     </div>
   </div>
 </div>
@@ -122,8 +165,23 @@ welcome()
                 </div>
               </td>
             </tr>
+            <tr>
+              <td>
+                Backup mod before downloading? <br />
+                Make sure you have the space available.
+              </td>
+              <td>
+                <div class="input-group">
+                  <select v-model="doBackupMods" class="form-select" @change="onDoBackupModsChange" aria-label="">
+                  <option value="enabled">Yes.</option>
+                  <option value="disabled">No.</option>
+                </select>
+                </div>
+              </td>
+            </tr>
             </tbody>
           </table>
+          <div><ModalsContainer /></div>
         </div>
       </div>
     </div>
