@@ -37,11 +37,11 @@ Mods will **never** be deleted. This is by design so single player savegames won
 ### [Build it yourself]
   - Clone or download the repo.
   - Edit `package.json` to your liking.
+  - Run `npm install` to install the modules.
   - Edit the USER VARIABLES in `src/main/index.js` located on line 12.
     - If you want to use a private github repo you can set `isPrivateRepo = true` and put your Access Token in the `GH_TOKEN_token` variable like this: `GH_TOKEN_token = 'YOUR_TOKEN_HERE'`.
     You can get an access token from   
     `Github Settings > Applications > My Github Apps > Personal Access Tokens > Fine-grained tokens`.
-  - Run `npm install` to install the modules.
   - Run `npm run build:win` for building the windows client. It will be located in the `dist` folder.
   - See `package.json` for all runnable scripts and options.
   - For publishing with electron-forge you need to edit `forge.config.js`.
