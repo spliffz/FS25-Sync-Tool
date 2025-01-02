@@ -1,7 +1,7 @@
 # FS25 Sync Tool - readme.md
 ###### v1.2.0
    
-Syncs mods for Farming Simulator 22 or 25 across multiple pc's.   
+Syncs mods for Farming Simulator 25 or 22 accross multiple pc's.   
 Client-side application.   
 Needs [F25-Mod-Sync-Server](https://github.com/spliffz/FS25-Mod-Sync-Server) in combination usage.
    
