@@ -1,34 +1,34 @@
 # FS25 Sync Tool - readme.md
 ###### v1.2.0
    
-Syncs mods for Farming Simulator 25 or 22 accross multiple pc's.   
+Syncs mods for Farming Simulator 22 or 25 across multiple pc's.   
 Client-side application.   
-Needs [FS25_Storage_Server](https://github.com/spliffz/FS25-Mod-Sync-Server) in combination usage.
+Needs [F25-Mod-Sync-Server](https://github.com/spliffz/FS25-Mod-Sync-Server) in combination usage.
    
-![FS25 Mod Sync Tool by Spliffz](http://fs25.rotjong.xyz/FS25-mst-01.png)   
+![FS25 Mod Sync Tool by Spliffz](http://fs25.rotjong.xyz/fs25mst_01.png)   
 
 ---
 ### [Features]
   - ## **Also for use with Farming Simulator 22 (FS22)!**
-  - Easy to use (but not the prettiest) interface. 
+  - Easy to use (ugly) interface. 
   - It accounts for the use of OneDrive or custom location.
   - Auto updates to a new version on release.
   - A smiling cow.
   - My everlasting gratitude for using my software!
 
 ### [How it works]
-It simply compares your mods folder (Located in *'My Documents\My Games\Farmingsimulator2025\mods'*) with the mods on the server running [FS25_Storage_Server](https://github.com/spliffz/FS25-Mod-Sync-Server).   
+It simply compares your mods folder (Located in *'My Documents\My Games\Farmingsimulator2025\mods'*) with the mods on the server running [F25-Mod-Sync-Server](https://github.com/spliffz/FS25-Mod-Sync-Server).   
 If it finds new or updated mods it will automatically download them and overwrite the old ones.   
 Mods will **never** be deleted. This is by design so single player savegames won't get corrupted.
 
 
 ### [Requirements]
- - Farming Simulator 25 or 22.
+ - Farming Simulator 22 or 25.
  - Currently only supports Windows.
- - [FS25_Storage_Server](https://github.com/spliffz/FS25-Mod-Sync-Server).
+ - [F25-Mod-Sync-Server](https://github.com/spliffz/FS25-Mod-Sync-Server).
 
 ### [Installation]
- - Download the latest build from [Releases](https://github.com/spliffz/FS25-Sync-Tool/releases).
+ - Download the last build from [Releases](https://github.com/spliffz/FS25-Sync-Tool/releases).
  - Install it, it should launch after installation.
  - Enter your server hostname.
  - If you use it for FS22 you need to change the Version in Settings.
@@ -56,3 +56,4 @@ Mods will **never** be deleted. This is by design so single player savegames won
   - Electron
   - Vue.js
   - Bootstrap
+

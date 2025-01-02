@@ -145,7 +145,7 @@ app.whenReady().then(() => {
   //let opts = {show: false}
   Object.assign(opts, config.get('winBounds'))
   // Set app user model id for windows
-  electronApp.setAppUserModelId('com.electron')
+  electronApp.setAppUserModelId('FS25-Mod-Sync-Tool')
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
