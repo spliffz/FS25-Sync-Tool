@@ -1,11 +1,11 @@
 # FS25 Sync Tool - readme.md
 ###### v1.2.0
    
-Syncs mods for Farming Simulator 25 or 22 accross multiple pc's.   
+Syncs mods for Farming Simulator 22 or 25 across multiple pc's.   
 Client-side application.   
 Needs [F25-Mod-Sync-Server](https://github.com/spliffz/FS25-Mod-Sync-Server) in combination usage.
    
-![FS25 Mod Sync Tool by Spliffz](http://fs25.rotjong.xyz/fs25mst_01.png)   
+![FS25 Mod Sync Tool by Spliffz](http://fs25.rotjong.xyz/FS25-mst-01.png)   
 
 ---
 ### [Features]
@@ -56,4 +56,3 @@ Mods will **never** be deleted. This is by design so single player savegames won
   - Electron
   - Vue.js
   - Bootstrap
-
