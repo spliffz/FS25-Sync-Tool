@@ -10,7 +10,7 @@ import { autoUpdater } from 'electron-updater'
 
 // -------------------------------------------------------
 // ### USER VARIABLES
-const spliffz_debug = true // enabled debug console. set to false for production build!
+const spliffz_debug = false // enabled debug console. set to false for production build!
 
 // ### Private Github Repo Config
 const isPrivateRepo = false // set to true if you want to use a private github repo.
