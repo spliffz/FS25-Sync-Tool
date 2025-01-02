@@ -5,7 +5,7 @@ Syncs mods for Farming Simulator 25 or 22 accross multiple pc's.
 Client-side application.   
 Needs [FS25_Storage_Server](https://github.com/spliffz/FS25-Mod-Sync-Server) in combination usage.
    
-![FS25 Mod Sync Tool by Spliffz](http://fs25.rotjong.xyz/fs25mst_01.png)   
+![FS25 Mod Sync Tool by Spliffz](http://fs25.rotjong.xyz/fs25mst_01a.png)   
 
 ---
 ### [Features]
