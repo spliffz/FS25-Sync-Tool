@@ -104,7 +104,7 @@ input {
   border-radius: 5px;
   padding: 10px;
   padding-top: 0px;
-  height: 260px
+  min-height: 240px
 }
 .button_hostname {
   background-color: #979797 !important;

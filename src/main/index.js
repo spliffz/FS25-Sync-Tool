@@ -10,7 +10,7 @@ import { autoUpdater } from 'electron-updater'
 
 // -------------------------------------------------------
 // ### USER VARIABLES
-const spliffz_debug = true // enabled debug console. set to false for production build!
+const spliffz_debug = false // enabled debug console. set to false for production build!
 
 // ### Private Github Repo Config
 const isPrivateRepo = false // set to true if you want to use a private github repo.
@@ -27,6 +27,8 @@ process.setMaxListeners(0)
 
 // Tray icon
 let tray
+let isWindowHidden = false
+
 import appIcon from '../../build/icon.ico?asset'
 
 
@@ -65,7 +67,9 @@ function IPC_sendCheckInterval() {
   console.log('ipc_CheckInterval!')
   mainWindow.send('IPC_checkInterval', { data: config.get('periodicCheckInterval') })
 }
-
+function IPC_minimizeToTray() {
+  mainWindow.send('IPC_minimizeToTray', { data: minimizeToTray })
+}
 
 const width = 780
 const height = 520
@@ -97,8 +101,18 @@ function createWindow(opts) {
   mainWindow.setBounds({ width: width, height: height })
   
   mainWindow.on('ready-to-show', () => {
+    isWindowHidden = false
     mainWindow.show()
   })
+
+  mainWindow.on('minimize', (event) => {
+    if(config.get('minimizeToTray') == 'enabled') {
+      event.preventDefault()
+      isWindowHidden = true
+      mainWindow.hide()
+    }
+  })
+
   mainWindow.on('close', () => {
     config.set('winBounds', mainWindow.getBounds())
   })
@@ -170,6 +184,15 @@ app.whenReady().then(() => {
       type: 'normal',
       click: () => {
         mainWindow.show()
+        isWindowHidden = false
+      }
+    },
+    {
+      label: 'Minimize to Tray',
+      type: 'normal',
+      click: () => {
+        mainWindow.hide()
+        isWindowHidden = true
       }
     },
     {
@@ -182,6 +205,21 @@ app.whenReady().then(() => {
   ])
   tray.setContextMenu(contextMenu)
 
+  tray.on('click', () => {
+
+    console.log(isWindowHidden)
+    if (isWindowHidden) {
+      console.log(isWindowHidden)
+      console.log('show')
+      mainWindow.show()
+      isWindowHidden = false
+    } else {
+      console.log(isWindowHidden)
+      console.log('hide')
+      mainWindow.hide()
+      isWindowHidden = true;
+    }
+  })
 
 
   // Default open or close DevTools by F12 in development
@@ -205,6 +243,7 @@ app.whenReady().then(() => {
     IPC_sendCheckIntervalStatus()
     IPC_sendCheckInterval()
     IPC_sendFSVersion()
+    IPC_minimizeToTray()
     welcomeText()
   })
   
@@ -232,6 +271,12 @@ app.whenReady().then(() => {
 
   ipcMain.on('getVersionNumber', (event, props) => {
     IPC_sendVersionNumber()
+  })
+
+  ipcMain.on('IPC_minimizeToTray', (event, props) => {
+    config.set('minimizeToTray', props)
+    minimizeToTray = props
+    IPC_minimizeToTray()
   })
   
   ipcMain.on('locateModFolder', (event, props) => {
@@ -301,11 +346,14 @@ app.on('window-all-closed', () => {
 if (typeof config.get('periodicCheck') === 'undefined') {
   config.set('periodicCheck', 'disabled')
 }
+if (typeof config.get('minimizeToTray') === 'undefined') {
+  config.set('minimizeToTray', 'disabled')
+}
 if (typeof config.get('periodicCheckInterval') === 'undefined') {
   config.set('periodicCheckInterval', '60') // default to 60 seconds
 }
 if (typeof config.get('periodicCheckIntervalMS') === 'undefined') {
-  config.set('periodicCheckIntervalMS', '60000') // 60000 ms
+  config.set('periodicCheckIntervalMS', '300000') // 60000 ms
 }
 if (typeof config.get('selectedFSVersion') === 'undefined') {
   config.set('selectedFSVersion', '')
@@ -392,6 +440,7 @@ if (modFolderPath === '') {
 let serverUrl = modserverUrl 
 let dlUrl = setDLUrl()
 let backupEnabled = config.get('backupEnabled')
+let minimizeToTray = config.get('minimizeToTray')
 if (backupEnabled === '') {
   backupEnabled = 'disabled'
 }

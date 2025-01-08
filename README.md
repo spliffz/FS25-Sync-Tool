@@ -72,6 +72,7 @@ Eventually i'll make a better looking interface
 - added 'About' page
 - rewrote some IPC calls
 - some minor things that aren't worth mentioning (basically I forgot..)
+- added minimize to tray feature.
 
 [v1.2.2]
 - Fixing the mess that was 1.2.1 *sigh* For some reason a lot was broken.

@@ -15,6 +15,8 @@ let doBackupMods = ref('')
 let currentVersion = ref('')
 let checkInterval = ref('')
 let checkOnInterval = ref('')
+let minimizeToTray = ref('')
+
 
 // ### IPC Handlers
 // const checkMods = () => window.electron.ipcRenderer.send('checkMods')
@@ -70,6 +72,11 @@ window.electron.ipcRenderer.on('IPC_checkInterval', (event, props) => {
   checkInterval.value = props.data
 })
 
+window.electron.ipcRenderer.on('IPC_minimizeToTray', (event, props) => {
+  console.log(props)
+  minimizeToTray.value = props.data
+})
+
 
 const { open, close } = useModal({
   component: Modal_backupDisabled,
@@ -93,7 +100,7 @@ const { open, close } = useModal({
 // ### Functions
 function writeLog(msg, type=null) {
   const d = new Date();
-  let time = '[' + d.toLocaleTimeString() + ']'
+  let time = '[' + d.toLocaleTimeString() + '] '
   
   let pre = ''
   if (type == 'info') {
@@ -118,6 +125,12 @@ function onVersionChange() {
   writeLog('Farming Simulator Version Changed. New version: Farming Simulator ' + gameVersion.value, 'info')
   // const versionChange = 
   window.electron.ipcRenderer.send('versionChange', gameVersion.value)
+}
+
+function onMinimizaToTrayChange() {
+  writeLog('Minimize to tray now ' + minimizeToTray.value, 'info')
+  // const versionChange = 
+  window.electron.ipcRenderer.send('IPC_minimizeToTray', minimizeToTray.value)
 }
 
 function onDoBackupModsChange() {
@@ -237,7 +250,7 @@ window.renderer.welcome()
                       </select>
 
                       <select v-model="checkInterval" class="form-select checkInterval" @change="onSetCheckInterval" aria-label="">
-                        <option value="1">1 minute</option>
+                        <!-- <option value="1">1 minute</option> -->
                         <option value="5">5 minutes</option>
                         <option value="10">10 minutes</option>
                         <option value="30">30 minutes</option>
@@ -246,6 +259,15 @@ window.renderer.welcome()
                         <option value="1440">24 hours</option>
                       </select>
                     </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Minimize to tray?</td>
+                  <td>
+                    <select v-model="minimizeToTray" class="form-select" @change="onMinimizaToTrayChange" aria-label="">
+                      <option value="enabled">Yes</option>
+                      <option value="disabled">No</option>
+                    </select>
                   </td>
                 </tr>
               </tbody>
