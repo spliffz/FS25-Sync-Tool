@@ -1,5 +1,5 @@
 # FS25 Sync Tool - readme.md
-###### v1.2.2
+###### v1.2.3
    
 Syncs mods for Farming Simulator 22 or 25 across multiple pc's.   
 Client-side application.   
@@ -8,12 +8,16 @@ Needs [F25-Mod-Sync-Server](https://github.com/spliffz/FS25-Mod-Sync-Server) in 
 ![FS25 Mod Sync Tool by Spliffz](http://fs25.rotjong.xyz/FS25-mst-01.png)   
 
 ---
+
+#### Discord: [https://discord.gg/cxs9hcE2X6](https://discord.gg/cxs9hcE2X6)   
+
 ### [Features]
   - ## **Also for use with Farming Simulator 22 (FS22)!**
-  - Easy to use (ugly) interface. 
+  - Easy to use (but ugly) interface. 
   - It accounts for the use of OneDrive or custom location.
   - Auto updates to a new version on release.
   - Ability to backup mods before updating.
+  - Periodic Sync that runs in the background. 
   - A smiling cow.
   - My everlasting gratitude for using my software!
 
@@ -58,8 +62,17 @@ Mods will **never** be deleted. This is by design so single player savegames won
   - Vue.js
   - Bootstrap
 
+Eventually i'll make a better looking interface
 
 ### [Changelog]
+[v1.2.3]
+- added periodic check feature [Issue #1](https://github.com/spliffz/FS25-Sync-Tool/issues/1) - just let it run in the background and get updates
+- changed app icon
+- added tray icon + menu
+- added 'About' page
+- rewrote some IPC calls
+- some minor things that aren't worth mentioning (basicall I forgot..)
+
 [v1.2.2]
 - Fixing the mess that was 1.2.1 *sigh* For some reason a lot was broken.
 So fixed the initial config, the urls, the path, the switching of version. Only not broken was the backup function -_-
