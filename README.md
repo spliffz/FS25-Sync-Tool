@@ -71,7 +71,7 @@ Eventually i'll make a better looking interface
 - added tray icon + menu
 - added 'About' page
 - rewrote some IPC calls
-- some minor things that aren't worth mentioning (basicall I forgot..)
+- some minor things that aren't worth mentioning (basically I forgot..)
 
 [v1.2.2]
 - Fixing the mess that was 1.2.1 *sigh* For some reason a lot was broken.
