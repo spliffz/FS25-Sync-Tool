@@ -1,4 +1,4 @@
-appId: com.electron.app
+appId: com.m000.inc
 productName: fs25-sync-tool
 directories:
   buildResources: build

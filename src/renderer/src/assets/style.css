@@ -18,11 +18,12 @@
 
 body {
   background-size: cover !important;
+  display: block !important;
 }
 
 .logbox {
   width: 720px;
-  height: 210px;
+  height: 240px;
   background-color: #000000a3;
   margin-top: 10px;
   color: #ffffff;
@@ -80,7 +81,7 @@ input {
 }
 
 .tablistWrapper {
-  width: 90%;
+  width: 720px;
   margin: 0 auto;
   height: 231px;
 }
@@ -103,6 +104,7 @@ input {
   border-radius: 5px;
   padding: 10px;
   padding-top: 0px;
+  height: 260px
 }
 .button_hostname {
   background-color: #979797 !important;
@@ -125,3 +127,18 @@ input {
   background-color: #104501;
   --bs-btn-hover-bg: #1a7401;
 }
+
+.checkInterval {
+  max-width: 50%;
+}
+
+.about {
+  width: 100%;
+}
+
+.about ul {
+  padding-top: 10px
+}
+
+
+

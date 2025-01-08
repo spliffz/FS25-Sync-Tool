@@ -1,6 +1,6 @@
 {
   "name": "fs25-sync-tool",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "FS22/25 Mods Synchronize Tool",
   "main": "./out/main/index.js",
   "author": "Spliffz",

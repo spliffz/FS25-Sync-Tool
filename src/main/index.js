@@ -1,4 +1,4 @@
-import { app, dialog, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, dialog, shell, BrowserWindow, ipcMain, Tray, Menu, nativeImage } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
@@ -10,7 +10,7 @@ import { autoUpdater } from 'electron-updater'
 
 // -------------------------------------------------------
 // ### USER VARIABLES
-const spliffz_debug = false // enabled debug console. set to false for production build!
+const spliffz_debug = true // enabled debug console. set to false for production build!
 
 // ### Private Github Repo Config
 const isPrivateRepo = false // set to true if you want to use a private github repo.
@@ -20,8 +20,15 @@ const gitOwner = 'Spliffz'
 const GH_TOKEN_token = ''
 
 
+// DON'T TOUCH
+// HERE BE DRAGONS AND UH EVIL WIZARDS.
 // -------------------------------------------------------
 process.setMaxListeners(0)
+
+// Tray icon
+let tray
+import appIcon from '../../build/icon.ico?asset'
+
 
 if (isPrivateRepo) {
   process.env.GH_TOKEN = GH_TOKEN_token
@@ -45,11 +52,27 @@ function IPC_sendModserverUrl(msg) {
   mainWindow.send('getModserverUrl', { data: msg })
 }
 
+function IPC_sendVersionNumber() {
+  mainWindow.send('getVersionNumber', { data: app.getVersion()})
+}
+
+function IPC_sendCheckIntervalStatus() {
+  console.log('ipc_CheckIntervalStatus!')
+  mainWindow.send('IPC_checkIntervalStatus', { data: config.get('periodicCheck') })
+}
+
+function IPC_sendCheckInterval() {
+  console.log('ipc_CheckInterval!')
+  mainWindow.send('IPC_checkInterval', { data: config.get('periodicCheckInterval') })
+}
+
+
 const width = 780
-const height = 480
+const height = 520
 const opts = {
   width: width,
   height: height,
+  icon: __dirname + '/assets/icon.png',
   show: false,
   autoHideMenuBar: true,
   ...(process.platform === 'linux' ? { icon } : {}),
@@ -57,7 +80,7 @@ const opts = {
     nodeIntegration: true,
     contextIsolation: true,
     preload: join(__dirname, '../preload/index.js'),
-    sandbox: false
+    sandbox: false,
   }
 }
 
@@ -85,6 +108,8 @@ function createWindow(opts) {
     return { action: 'deny' }
   })
 
+  mainWindow.setIcon(appIcon)
+
   // HMR for renderer base on electron-vite cli.
   // Load the remote URL for development or the local html file for production.
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
@@ -93,6 +118,12 @@ function createWindow(opts) {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
 }
+
+
+
+
+
+
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -116,6 +147,43 @@ app.whenReady().then(() => {
   // Set app user model id for windows
   electronApp.setAppUserModelId('FS25-Mod-Sync-Tool')
 
+
+  // Tray icon
+  tray = new Tray(nativeImage.createFromPath(appIcon))
+  // const contextMenu = Menu.buildFromTemplate([
+  //   { label: 'Item1', type: 'radio' },
+  //   { label: 'Item2', type: 'radio' },
+  //   { label: 'Item3', type: 'radio', checked: true },
+  //   { label: 'Item4', type: 'radio' }
+  // ])
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: 'FS25 Sync Tool v' + app.getVersion(),
+      type: 'normal'
+    },
+    {
+      // label: 'Show Sync Tool',
+      type: 'separator'
+    },
+    {
+      label: 'Show Sync Tool',
+      type: 'normal',
+      click: () => {
+        mainWindow.show()
+      }
+    },
+    {
+      label: 'Quit',
+      type: 'normal',
+      click: () => {
+        app.quit()
+      }
+    }
+  ])
+  tray.setContextMenu(contextMenu)
+
+
+
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
   // see https://github.com/alex8088/electron-toolkit/tree/master/packages/utils
@@ -134,6 +202,8 @@ app.whenReady().then(() => {
     IPC_sendModFolderPath()
     IPC_doBackupEnabled()
     IPC_sendModserverUrl(modserverUrl)
+    IPC_sendCheckIntervalStatus()
+    IPC_sendCheckInterval()
     IPC_sendFSVersion()
     welcomeText()
   })
@@ -159,6 +229,10 @@ app.whenReady().then(() => {
     setMainVars()
     deletingBackupFiles()
   })
+
+  ipcMain.on('getVersionNumber', (event, props) => {
+    IPC_sendVersionNumber()
+  })
   
   ipcMain.on('locateModFolder', (event, props) => {
     // console.log(props)
@@ -171,6 +245,25 @@ app.whenReady().then(() => {
       config.set(pre + 'modFolderLocation', result.filePaths)
       mainWindow.send('modFolderDialogLocation', result.filePaths)
     })
+  })
+
+
+  ipcMain.on('openLink_Github', (event, props) => {
+    shell.openPath('https://github.com/spliffz/FS25-Sync-Tool')
+  })
+
+  ipcMain.on('openLink_Discord', (event, props) => {
+    shell.openPath('https://discord.gg/cxs9hcE2X6')
+  })
+
+  ipcMain.on('onSetCheckOnInterval', (event, props) => {
+    console.log(props)
+    setPeriodicCheck(props)
+  })
+  
+  ipcMain.on('onSetCheckInterval', (event, props) => {
+    console.log(props)
+    setCheckInterval(props)
   })
 
 
@@ -205,15 +298,24 @@ app.on('window-all-closed', () => {
 
 
 // some default values
-if(typeof config.get('selectedFSVersion') === 'undefined') {
+if (typeof config.get('periodicCheck') === 'undefined') {
+  config.set('periodicCheck', 'disabled')
+}
+if (typeof config.get('periodicCheckInterval') === 'undefined') {
+  config.set('periodicCheckInterval', '60') // default to 60 seconds
+}
+if (typeof config.get('periodicCheckIntervalMS') === 'undefined') {
+  config.set('periodicCheckIntervalMS', '60000') // 60000 ms
+}
+if (typeof config.get('selectedFSVersion') === 'undefined') {
   config.set('selectedFSVersion', '')
 }
-if(typeof config.get('modserverHostname') === 'undefined') {
+if (typeof config.get('modserverHostname') === 'undefined') {
   config.set('modserverHostname', '')
 }
 const oneDrivePath = os.homedir + '\\OneDrive\\Documents\\'
 let modsPath = ''
-if(typeof config.get('fs25_modFolderLocation') === 'undefined') {
+if (typeof config.get('fs25_modFolderLocation') === 'undefined') {
   if (fs.existsSync(oneDrivePath)) {
     modsPath = os.homedir + '\\OneDrive\\Documents\\My Games\\FarmingSimulator2025\\mods\\'
     // config.set(pre + 'modFolderLocation', modsPath)
@@ -224,7 +326,7 @@ if(typeof config.get('fs25_modFolderLocation') === 'undefined') {
     config.set('fs25_modFolderLocation', modsPath)
   }
 }
-if(typeof config.get('fs22_modFolderLocation') === 'undefined') {
+if (typeof config.get('fs22_modFolderLocation') === 'undefined') {
   if (fs.existsSync(oneDrivePath)) {
     modsPath = os.homedir + '\\OneDrive\\Documents\\My Games\\FarmingSimulator2022\\mods\\'
     // config.set(pre + 'modFolderLocation', modsPath)
@@ -235,10 +337,10 @@ if(typeof config.get('fs22_modFolderLocation') === 'undefined') {
     config.set('fs22_modFolderLocation', modsPath)
   }
 }
-if(typeof config.get('backupEnabled') === 'undefined') {
+if (typeof config.get('backupEnabled') === 'undefined') {
   config.set('backupEnabled', 'disabled')
 }
-if(typeof config.get('winBounds') === 'undefined') { 
+if (typeof config.get('winBounds') === 'undefined') { 
   config.set('winBounds', '')
 }
 
@@ -252,6 +354,8 @@ function setMainVars() {
 function setDLUrl() {
   return serverUrl + '/mods/'
 }
+
+
 // -------------------------------------------------------
 // ### DON'T TOUCH FROM HERE.
 // THERE BE DRAGONS AND SUCH. JUST GO AWAY.
@@ -300,9 +404,67 @@ let deleteBackupFiles = false
 // -------------------------------------------------------
 // ### MAIN FUNCTIONS
 
+
+function setCheckInterval(minutes) {
+  let time, timeText
+  if (minutes == 1) {
+    time = minutes * 60
+    timeText = '1 minute'
+  } else if (minutes == 5) {
+    time = minutes * 60
+    timeText = '5 minutes'
+  } else if (minutes == 10) {
+    time = minutes * 60
+    timeText = '10 minutes'
+  } else if (minutes == 30) {
+    time = minutes * 60
+    timeText = '30 minutes'
+  } else if (minutes == 60) {
+    time = minutes * 60
+    timeText = ' 1 hour'
+  } else if (minutes == 360) {
+    time = minutes * 60
+    timeText = ' 6 hours'
+  } else if (minutes == 1440) {
+    time = minutes * 60
+    timeText = ' 1 day/24 Hours'
+  }
+  
+  let finalTime = time * 1000
+  writeLog('Setting periodic check interval to every ' + timeText, 'info')
+  config.set('periodicCheckInterval', minutes)
+  config.set('periodicCheckIntervalMS', finalTime)
+  // if (config.get('periodicCheck') == 'enabled') {
+  //   runPeriodicCheck()
+  // }
+}
+
+let periodicTimerRunning
+function setPeriodicCheck(val) {
+  config.set('periodicCheck', val)
+  writeLog('Setting periodic check to ' + val, 'info')
+  if (config.get('periodicCheck') == 'enabled') {
+    runPeriodicCheck()
+  } else {
+    clearInterval(periodicTimerRunning)
+  }
+}
+
+function runPeriodicCheck() {
+  clearInterval(periodicTimerRunning)
+  if (config.get('periodicCheck') == 'enabled') {
+    periodicTimerRunning = setInterval(() => {
+      writeLog('Running Periodic Check.', 'info')
+      checkMods()
+    }, config.get('periodicCheckIntervalMS'))
+  }
+}
+
+
+
 function deletingBackupFiles() {
   writeLog('Deleting backup files...', 'info')
-
+  
   let files = fs.readdirSync(modsPath, { withFileTypes: true }) // (error, files) => {
 
   files.forEach((file) => {
@@ -328,11 +490,11 @@ function setVersion(version) {
   modFolderPath = config.get(pre + 'modFolderLocation')
   config.set('selectedFSVersion', version)
   selectedFSVersion = version
-  modsPath = modFolderPath
+  modsPath = modFolderPath[0]
   IPC_sendModFolderPath()
-  console.log(modFolderPath)
+  console.log(modsPath)
   setMainVars()
-  writeLog('Using Folder: ' + modFolderPath, 'info')
+  writeLog('Using Folder: ' + modsPath, 'info')
 }
 
 
@@ -386,12 +548,12 @@ async function checkForNewMods(servModList, localList) {
 
 function getLocalModList() {
   writeLog('Mods folder: ' + modsPath, 'info')
-  console.log('Mods folder: ' + modsPath)
+  console.log('Mods folder: ' + modsPath.toString())
 
   let result = []
   let resultArray = []
   let fsize = ''
-  let files = fs.readdirSync(modsPath, { withFileTypes: true }) // (error, files) => {
+  let files = fs.readdirSync(modsPath.toString(), { withFileTypes: true }) // (error, files) => {
 
   files.forEach((file) => {
     if (!file.name.endsWith('Copy.zip')) {
@@ -485,12 +647,12 @@ function formatProgress(progress) {
 function welcomeText() {
   writeLog('Hello ' + os.userInfo().username + '!')
   writeLog('Selected: Farming Simulator ' + selectedFSVersion + '.')
-  writeLog('Click the check mods button to start.')
+  writeLog('Click the [Sync Mods] button to start.')
+  writeLog('PeriodicCheck is ' + config.get('periodicCheck') + '.')
 }
 
 
 // ### MAIN CODE
-
 import fs, { write } from 'fs'
 import os from 'os'
 import nodePath from 'path'
@@ -498,7 +660,9 @@ import md5File from 'md5-file'
 
 
 
-
+if (config.get('periodicCheck') == 'enabled') {
+  runPeriodicCheck()
+}
 
 async function backupMod(mod) {
   // console.log(mod)
