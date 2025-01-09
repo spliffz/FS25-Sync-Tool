@@ -62,7 +62,7 @@ Mods will **never** be deleted. This is by design so single player savegames won
   - Vue.js
   - Bootstrap
 
-Eventually i'll make a better looking interface
+Eventually i'll make a better looking interface. *Eventually.*
 
 ### [Changelog]
 [v1.2.3]
@@ -73,6 +73,9 @@ Eventually i'll make a better looking interface
 - rewrote some IPC calls
 - some minor things that aren't worth mentioning (basically I forgot..)
 - added minimize to tray feature. - Clicking the tray icon will **always** minimize to tray
+- added 1 time removal of config file to have a fresh start. Yep sorry but it's needed to reset some code base changes.
+- fixed it trying to make a backup of a non-existing file. Now it skips like it should.
+- added more information on startup
 
 [v1.2.2]
 - Fixing the mess that was 1.2.1 *sigh* For some reason a lot was broken.

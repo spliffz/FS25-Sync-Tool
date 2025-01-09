@@ -6,6 +6,7 @@ import Axios from 'axios'
 import Config from 'electron-config'
 const config = new Config()
 import { autoUpdater } from 'electron-updater'
+import { existsSync } from 'fs'
 
 
 // -------------------------------------------------------
@@ -164,12 +165,6 @@ app.whenReady().then(() => {
 
   // Tray icon
   tray = new Tray(nativeImage.createFromPath(appIcon))
-  // const contextMenu = Menu.buildFromTemplate([
-  //   { label: 'Item1', type: 'radio' },
-  //   { label: 'Item2', type: 'radio' },
-  //   { label: 'Item3', type: 'radio', checked: true },
-  //   { label: 'Item4', type: 'radio' }
-  // ])
   const contextMenu = Menu.buildFromTemplate([
     {
       label: 'FS25 Sync Tool v' + app.getVersion(),
@@ -343,6 +338,28 @@ app.on('window-all-closed', () => {
 
 
 // some default values
+
+// Okay.. so I fucked up somewhere between 1.2.2 and 1.2.3 and now I need to delete your config file for 1.2.3.
+// Don't worry, this is a one time thing (hopefully..)
+
+const appDataConfigFolder = join(os.homedir(), 'Appdata', 'Roaming', app.getName())
+// console.log(appDataConfigFolder)
+
+if (app.getVersion() == '1.2.3') {
+  if (config.get('123_ConfigDeleted') != 1) {
+    // And. Here. We. Go.
+    
+    if (existsSync(appDataConfigFolder)) {
+      console.log('Config folder exists')
+      fs.rmdirSync(appDataConfigFolder, { recursive: true, force: true})
+      console.log('Config folder ' + appDataConfigFolder + ' deleted. Fresh start baby!')
+    }
+    config.set('123_ConfigDeleted', 1)
+  }
+}
+
+
+
 if (typeof config.get('periodicCheck') === 'undefined') {
   config.set('periodicCheck', 'disabled')
 }
@@ -367,22 +384,22 @@ if (typeof config.get('fs25_modFolderLocation') === 'undefined') {
   if (fs.existsSync(oneDrivePath)) {
     modsPath = os.homedir + '\\OneDrive\\Documents\\My Games\\FarmingSimulator2025\\mods\\'
     // config.set(pre + 'modFolderLocation', modsPath)
-    config.set('fs25_modFolderLocation', modsPath)
+    config.set('fs25_modFolderLocation', [modsPath])
   } else {
     modsPath = os.homedir + '\\Documents\\My Games\\FarmingSimulator2025\\mods\\'
     // config.set(pre + 'modFolderLocation', modsPath)
-    config.set('fs25_modFolderLocation', modsPath)
+    config.set('fs25_modFolderLocation', [modsPath])
   }
 }
 if (typeof config.get('fs22_modFolderLocation') === 'undefined') {
   if (fs.existsSync(oneDrivePath)) {
     modsPath = os.homedir + '\\OneDrive\\Documents\\My Games\\FarmingSimulator2022\\mods\\'
     // config.set(pre + 'modFolderLocation', modsPath)
-    config.set('fs22_modFolderLocation', modsPath)
+    config.set('fs22_modFolderLocation', [modsPath])
   } else {
     modsPath = os.homedir + '\\Documents\\My Games\\FarmingSimulator2022\\mods\\'
     // config.set(pre + 'modFolderLocation', modsPath)
-    config.set('fs22_modFolderLocation', modsPath)
+    config.set('fs22_modFolderLocation', [modsPath])
   }
 }
 if (typeof config.get('backupEnabled') === 'undefined') {
@@ -423,7 +440,7 @@ if (selectedFSVersion === '22') {
 let modserverUrl = config.get('modserverHostname')
 let modFolderPath = config.get(pre + 'modFolderLocation')
 console.log(modFolderPath)
-console.log(typeof(modFolderPath))
+// console.log(typeof(modFolderPath))
 if (modFolderPath === '') {
   if (fs.existsSync(oneDrivePath)) {
     modsPath = os.homedir + '\\OneDrive\\Documents\\My Games\\FarmingSimulator20'+selectedFSVersion+'\\mods\\'
@@ -695,9 +712,17 @@ function formatProgress(progress) {
 
 function welcomeText() {
   writeLog('Hello ' + os.userInfo().username + '!')
+  writeLog('')
+  writeLog('-------------------------------')
+  writeLog('I\'m sorry but I had to reset your config file in this update.')
+  writeLog('This is a one time thing (hopefully) and you\'re all good now!')
+  writeLog('To make it up to you I give you some new features!')
+  writeLog('Have fun farming!')
+  writeLog('-------------------------------')
+  writeLog('')
   writeLog('Selected: Farming Simulator ' + selectedFSVersion + '.')
   writeLog('Click the [Sync Mods] button to start.')
-  writeLog('PeriodicCheck is ' + config.get('periodicCheck') + '.')
+  writeLog('PeriodicCheck is ' + config.get('periodicCheck') + ', Backups are ' + backupEnabled + ', Minimize to Tray is ' + minimizeToTray + '.')
 }
 
 
@@ -788,7 +813,13 @@ export async function checkMods() {
 
         // console.log('el: ' + el)
         if (backupEnabled == 'enabled') {
-          await backupMod(el)
+          // if file exists locally
+          if (existsSync(el)) {
+            console.log('backup file: ' + el + ' exists. Making backup.')
+            await backupMod(el)
+          } else {
+            console.log('backup file: ' + el + ' doesn\'t exist. Skipping.')
+          }
         }
 
         const n = idx + 1
