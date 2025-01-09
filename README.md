@@ -1,5 +1,5 @@
 # FS25 Sync Tool - readme.md
-###### v1.2.3
+###### v1.2.4
    
 Syncs mods for Farming Simulator 22 or 25 across multiple pc's.   
 Client-side application.   
@@ -65,6 +65,9 @@ Mods will **never** be deleted. This is by design so single player savegames won
 Eventually i'll make a better looking interface. *Eventually.*
 
 ### [Changelog]
+[v1.2.4]
+- fixed a crucial typo that could break it completely.
+
 [v1.2.3]
 - added periodic check feature [Issue #1](https://github.com/spliffz/FS25-Sync-Tool/issues/1) - just let it run in the background and get updates
 - changed app icon
