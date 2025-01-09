@@ -282,8 +282,11 @@ app.whenReady().then(() => {
       ]
     }).then(result => {
       // console.log(result)
-      config.set(pre + 'modFolderLocation', result.filePaths)
+      let fpath = result.filePaths + '\\'
+      // console.log('fpath: ' + fpath)
+      config.set(pre + 'modFolderLocation', [ fpath ])
       mainWindow.send('modFolderDialogLocation', result.filePaths)
+      writeLog('Mods Folder Changed to: ' + result.filePaths)
     })
   })
 
