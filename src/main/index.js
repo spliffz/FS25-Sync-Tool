@@ -7,7 +7,9 @@ import Config from 'electron-config'
 const config = new Config()
 import { autoUpdater } from 'electron-updater'
 import { existsSync } from 'fs'
+import { upStats } from './stats'
 
+import FloatingVue from 'floating-vue'
 
 // -------------------------------------------------------
 // ### USER VARIABLES
@@ -38,6 +40,9 @@ if (isPrivateRepo) {
 }
 
 // IPC Send
+function IPC_anonymousStats() {
+  mainWindow.send('IPC_anonymousStats', { data: anonymousStats })
+}
 function IPC_doBackupEnabled() {
   mainWindow.send('IPC_doBackupEnabled', { data: backupEnabled })
 }
@@ -139,6 +144,7 @@ function createWindow(opts) {
 
 
 
+// app.use(FloatingVue)
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -239,6 +245,7 @@ app.whenReady().then(() => {
     IPC_sendCheckInterval()
     IPC_sendFSVersion()
     IPC_minimizeToTray()
+    IPC_anonymousStats()
     welcomeText()
   })
   
@@ -297,6 +304,11 @@ app.whenReady().then(() => {
 
   ipcMain.on('openLink_Discord', (event, props) => {
     shell.openPath('https://discord.gg/cxs9hcE2X6')
+  })
+
+  ipcMain.on('onAnonymousStatsChange', (event, props) => {
+    console.log(props)
+    setAnonymousStatsChange(props)
   })
 
   ipcMain.on('onSetCheckOnInterval', (event, props) => {
@@ -363,6 +375,9 @@ if (app.getVersion() == '1.2.3') {
 
 
 
+if (typeof config.get('anonymousStats') === 'undefined') {
+  config.set('anonymousStats', 'enabled')
+}
 if (typeof config.get('periodicCheck') === 'undefined') {
   config.set('periodicCheck', 'disabled')
 }
@@ -460,14 +475,13 @@ if (modFolderPath === '') {
 let serverUrl = modserverUrl 
 let dlUrl = setDLUrl()
 let backupEnabled = config.get('backupEnabled')
+let anonymousStats = config.get('anonymousStats')
 let minimizeToTray = config.get('minimizeToTray')
 if (backupEnabled === '') {
   backupEnabled = 'disabled'
 }
 
 let deleteBackupFiles = false
-
-
 
 
 // -------------------------------------------------------
@@ -507,6 +521,12 @@ function setCheckInterval(minutes) {
   //   runPeriodicCheck()
   // }
 }
+
+function setAnonymousStatsChange(val) {
+  config.set('anonymousStats', val)
+  writeLog('Settings Collect Anonymous Statistics to ' + val, 'info')
+}
+
 
 let periodicTimerRunning
 function setPeriodicCheck(val) {
@@ -588,14 +608,7 @@ async function getListFromServer() {
 async function checkForNewMods(servModList, localList) {
   // Missing/New mods:
   let newModsArray = []
-  //console.log('server: ' + servModList.length)
-  //console.log(servModList)
   const localModListArray = localList // getLocalModList()
-  //console.log('local: ')
-  //console.log(localModList)
-  // const localModListArray = localModList[0]
-  //console.log('local_array: ' + localModListArray.length)
-  //console.log(localModListArray)
 
   // checks for new mods. 
   writeLog('Checking for new mods...')
@@ -610,8 +623,6 @@ async function checkForNewMods(servModList, localList) {
     i++
   })
   writeLog('Found ' + newModsArray.length + ' new mods.')
-  //console.log('newmods: ')
-  //console.log(newModsArray)
   return newModsArray
 }
 
@@ -635,13 +646,10 @@ function getLocalModList() {
     
       const hash = md5File.sync(modsPath + nodePath.sep + file.name)
       result.push( [ file.name, modsPath + nodePath.sep + file.name, hash, fsize ] )
-      //console.log(file.name);
-      // calc hash of file
     }
   })
   
   resultArray.push(result)
-  //console.log(resultArray)
   return resultArray
 }
 
@@ -714,18 +722,22 @@ function formatProgress(progress) {
 }
 
 function welcomeText() {
+  const periodicCheckEnabled = config.get('periodicCheck');
   writeLog('Hello ' + os.userInfo().username + '!')
-  writeLog('')
-  writeLog('-------------------------------')
-  writeLog('I\'m sorry but I had to reset your config file in this update.')
-  writeLog('This is a one time thing (hopefully) and you\'re all good now!')
-  writeLog('To make it up to you I give you some new features!')
-  writeLog('Have fun farming!')
-  writeLog('-------------------------------')
+  // writeLog('')
+  // writeLog('-------------------------------')
+  // writeLog('I\'m sorry but I had to reset your config file in this update.')
+  // writeLog('This is a one time thing (hopefully) and you\'re all good now!')
+  // writeLog('To make it up to you I give you some new features!')
+  // writeLog('Have fun farming!')
+  // writeLog('-------------------------------')
   writeLog('')
   writeLog('Selected: Farming Simulator ' + selectedFSVersion + '.')
+  writeLog('PeriodicCheck is ' + periodicCheckEnabled + ', Backups are ' + backupEnabled + ', Minimize to Tray is ' + minimizeToTray + '.')
+  if(periodicCheckEnabled == 'enabled') {
+    writeLog('Periodic check is on. Will automatically start a sync in a few seconds.')
+  }
   writeLog('Click the [Sync Mods] button to start.')
-  writeLog('PeriodicCheck is ' + config.get('periodicCheck') + ', Backups are ' + backupEnabled + ', Minimize to Tray is ' + minimizeToTray + '.')
 }
 
 
@@ -740,6 +752,11 @@ import md5File from 'md5-file'
 if (config.get('periodicCheck') == 'enabled') {
   runPeriodicCheck()
 }
+
+if(config.get('anonymousStats') == 'enabled') {
+  upStats()
+}
+
 
 async function backupMod(mod) {
   // console.log(mod)

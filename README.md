@@ -11,6 +11,8 @@ Needs [F25-Mod-Sync-Server](https://github.com/spliffz/FS25-Mod-Sync-Server) in 
 
 #### Discord: [https://discord.gg/cxs9hcE2X6](https://discord.gg/cxs9hcE2X6)   
 
+[<img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png">](https://www.buymeacoffee.com/Spliffz)
+
 ### [Features]
   - ## **Also for use with Farming Simulator 22 (FS22)!**
   - Easy to use (but ugly) interface. 

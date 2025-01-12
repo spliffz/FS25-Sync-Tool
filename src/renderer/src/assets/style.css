@@ -23,7 +23,7 @@ body {
 
 .logbox {
   width: 720px;
-  height: 240px;
+  height: 270px;
   background-color: #000000a3;
   margin-top: 10px;
   color: #ffffff;
@@ -58,6 +58,39 @@ input {
 .form-control {
   font-size: 0.8rem !important;
 }
+
+/* Tooltip container */
+.tooltipx {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+}
+
+/* Tooltip text */
+.tooltipx .tooltiptext {
+  visibility: hidden;
+  width: 400px;
+
+  bottom: 100%;
+  left: 50%;
+  margin-left: -200px; /* Use half of the width (120/2 = 60), to center the tooltip */
+
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 6px;
+ 
+  /* Position the tooltip text - see examples below! */
+  position: absolute;
+  z-index: 1;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltipx:hover .tooltiptext {
+  visibility: visible;
+}
+
 
 .img {
   height: 100px
@@ -104,7 +137,8 @@ input {
   border-radius: 5px;
   padding: 10px;
   padding-top: 0px;
-  min-height: 240px
+  height: 290px;
+  overflow-y: auto;
 }
 .button_hostname {
   background-color: #979797 !important;
@@ -132,6 +166,13 @@ input {
   max-width: 50%;
 }
 
+.icon {
+  width: 16px;
+}
+.tooltipx {
+  float: right;
+}
+
 .about {
   width: 100%;
 }
@@ -141,4 +182,6 @@ input {
 }
 
 
-
+.settings_td {
+  width: 50%;
+}

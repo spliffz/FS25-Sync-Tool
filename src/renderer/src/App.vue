@@ -4,7 +4,7 @@ import { ref } from 'vue'
 import * as bootstrap from 'bootstrap'
 import { ModalsContainer, useModal } from 'vue-final-modal'
 import Modal_backupDisabled from './components/Modal_backupDisabled.vue'
-
+import { Dropdown, Tooltip, Menu, vTooltip } from 'floating-vue'
 
 // ### VARIABLES
 let logboxContents = ref('')
@@ -16,7 +16,7 @@ let currentVersion = ref('')
 let checkInterval = ref('')
 let checkOnInterval = ref('')
 let minimizeToTray = ref('')
-
+let anonymousStats = ref('')
 
 // ### IPC Handlers
 // const checkMods = () => window.electron.ipcRenderer.send('checkMods')
@@ -32,6 +32,10 @@ const getCurrentVersion = window.renderer.getVersionNumber()
  
 
 
+
+window.electron.ipcRenderer.on('IPC_anonymousStats', (event, props) => {
+  anonymousStats.value = props.data
+})
 
 window.electron.ipcRenderer.on('IPC_doBackupEnabled', (event, props) => {
   // console.log(props)
@@ -144,6 +148,10 @@ function onDoBackupModsChange() {
   window.electron.ipcRenderer.send('onDoBackupModsChange', doBackupMods.value)
 }
 
+function onAnonymousStatsChange() {
+  window.electron.ipcRenderer.send('onAnonymousStatsChange', anonymousStats.value)
+}
+
 function onSetCheckInterval() {
   window.electron.ipcRenderer.send('onSetCheckInterval', checkInterval.value)
 }
@@ -155,8 +163,9 @@ function onSetCheckOnInterval() {
 
 // ### Main Code
 window.renderer.welcome()
-// welcome()
-// document.title = 'FS25 Mod Sync Tool v'+currentVersion.value
+
+const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
 
 </script>
 
@@ -206,8 +215,9 @@ window.renderer.welcome()
             <table class="table table-dark">
               <tbody>
                 <tr>
-                  <td>Game version:</td>
-                  <td>
+                  <td class="settings_td">
+                    Game version:</td>
+                  <td class="settings_td">
                     <select v-model="gameVersion" class="form-select" @change="onVersionChange" aria-label="">
                       <option value="22">Farming Simulator 22</option>
                       <option value="25">Farming Simulator 25</option>
@@ -215,8 +225,9 @@ window.renderer.welcome()
                   </td>
                 </tr>
                 <tr>
-                  <td>Mod Folder Location:</td>
-                  <td>
+                  <td class="settings_td">
+                    Mod Folder Location:</td>
+                  <td class="settings_td">
                     <div class="input-group">
                       <input v-model="modFolderPath" type="text" class="form-control" value="modFolderPath" />
                       <button class="btn btn-outline-secondary" type="button" id="locateModFolder" @click="locateModFolder">Locate</button>
@@ -224,11 +235,11 @@ window.renderer.welcome()
                   </td>
                 </tr>
                 <tr>
-                  <td>
+                  <td class="settings_td">
                     Backup mod before downloading? <br />
                     Make sure you have the space available.
                   </td>
-                  <td>
+                  <td class="settings_td">
                     <div class="input-group">
                       <select v-model="doBackupMods" class="form-select" @change="onDoBackupModsChange" aria-label="">
                       <option value="enabled">Yes</option>
@@ -238,11 +249,11 @@ window.renderer.welcome()
                   </td>
                 </tr>
                 <tr>
-                  <td>
+                  <td class="settings_td">
                     Periodically check for mods? <br />
                     If so, check every?
                   </td>
-                  <td>
+                  <td class="settings_td">
                     <div class="input-group">
                       <select v-model="checkOnInterval" class="form-select checkInterval" @change="onSetCheckOnInterval" aria-label="">
                         <option value="enabled">Yes</option>
@@ -262,9 +273,30 @@ window.renderer.welcome()
                   </td>
                 </tr>
                 <tr>
-                  <td>Minimize to tray?</td>
-                  <td>
+                  <td class="settings_td">
+                    Minimize to tray?
+                  </td>
+                  <td class="settings_td">
                     <select v-model="minimizeToTray" class="form-select" @change="onMinimizaToTrayChange" aria-label="">
+                      <option value="enabled">Yes</option>
+                      <option value="disabled">No</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="settings_td">
+                    <span class=""> 
+                      Anonymous Statistics (HardwareID and IP):
+                      <div class="tooltipx">
+                        <img src="../src/assets/Question.png" class="icon" />
+                        <span class="tooltiptext">
+                          Added minimum anonymous statistics: Hardware ID and IP address. I've no other way of knowing how many times the program is used and I like to have a minimum amount of statistics so I know a bit more about the usage. That's all. All the code is contained in `/src/main/stats.js` if you want to take a look. It's better than implementing Google Analytics.
+                        </span>
+                      </div>
+                    </span>
+                  </td>
+                  <td class="settings_td">
+                    <select v-model="anonymousStats" class="form-select" @change="onAnonymousStatsChange" aria-label="">
                       <option value="enabled">Yes</option>
                       <option value="disabled">No</option>
                     </select>

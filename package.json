@@ -1,6 +1,6 @@
 {
   "name": "fs25-sync-tool",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "FS22/25 Mods Synchronize Tool",
   "main": "./out/main/index.js",
   "author": "Spliffz",
@@ -59,8 +59,10 @@
     "axios": "^1.7.9",
     "bootstrap": "^5.3.3",
     "electron-config": "^1.0.0",
+    "floating-vue": "^5.2.2",
     "JSONStream": "^1.3.5",
     "md5-file": "^5.0.0",
+    "systeminformation": "^5.25.10",
     "vue-final-modal": "^4.5.5"
   },
   "devDependencies": {
