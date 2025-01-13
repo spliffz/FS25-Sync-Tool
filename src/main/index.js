@@ -9,8 +9,6 @@ import { autoUpdater } from 'electron-updater'
 import { existsSync } from 'fs'
 import { upStats } from './stats'
 
-import FloatingVue from 'floating-vue'
-
 // -------------------------------------------------------
 // ### USER VARIABLES
 const spliffz_debug = false // enabled debug console. set to false for production build!

@@ -74,6 +74,9 @@ Mods will **never** be deleted. This is by design so single player savegames won
 Eventually i'll make a better looking interface. *Eventually.*
 
 ### [Changelog]
+[v1.2.5]
+- added minimum anonymous statistics: Hardware ID and IP address. I've no other way of knowing how many times the program is used and I like to have a minimum amount of statistics so I know a bit more about the usage. That's all. All the code is contained in `/src/main/stats.js` if you want to take a look. Anyway.. it's better than implementing Google Analytics.
+
 [v1.2.4]
 - fixed a crucial typo that could break it completely.
 
