@@ -38,7 +38,7 @@ window.electron.ipcRenderer.on('getVersionNumber', (event, props) => {
           https://discord.gg/cxs9hcE2X6
         </a>
       </li>
-      <li class="">Author: Spliffz</li>
+      <li class="">Author: Spliffz [thespliffz@gmail.com]</li>
       <li class="">
         Contributors:
         <ul>

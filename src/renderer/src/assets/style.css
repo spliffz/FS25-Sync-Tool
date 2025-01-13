@@ -23,7 +23,7 @@ body {
 
 .logbox {
   width: 720px;
-  height: 270px;
+  height: 250px;
   background-color: #000000a3;
   margin-top: 10px;
   color: #ffffff;
@@ -56,6 +56,9 @@ input {
 }
 
 .form-control {
+  font-size: 0.8rem !important;
+}
+.form-select {
   font-size: 0.8rem !important;
 }
 
@@ -137,7 +140,7 @@ input {
   border-radius: 5px;
   padding: 10px;
   padding-top: 0px;
-  height: 290px;
+  height: 270px;
   overflow-y: auto;
 }
 .button_hostname {
