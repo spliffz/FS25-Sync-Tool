@@ -73,10 +73,23 @@ Mods will **never** be deleted. This is by design so single player savegames won
 
 Eventually i'll make a better looking interface. *Eventually.*
 
+### [Transparency regarding data collection]
+I'm no fan of data collecting. I recommend Ublock Origin as default.   
+But in order to have any idea about how many times my program is installed I had to include very basic data collection.   
+Besides the IP (since you connect to a webserver over the internet, it gets logged automatically) I only collect the HWID.   
+This is a string of random characters that is unique to your machine. It holds no identifier what so ever. It is **impossible** to link that to any personal or private identifier of your machine. It looks like this: `33198d3e-bdc6-7a22-9291-244bfe9a2a4c`.
+I collect that so I can check for unique installations.
+The collecting happens at start, and you can check what it does here: `/src/main/stats.js`.   
+I've made it opt-out, which you can do in the 'Settings' tab.
+But I would really really *really* appreciate it if you let me collect this to satisfy my analytics needs.    
+
+Thus, out of transparency I've made a page on my server that shows the stats.   
+If you're interested you can find it here: [https://fs25.rotjong.xyz/stats.php](https://fs25.rotjong.xyz/stats.php)
+
 ### [Changelog]
 [v1.2.5]
 - added minimum anonymous statistics: Hardware ID and IP address. I've no other way of knowing how many times the program is used and I like to have a minimum amount of statistics so I know a bit more about the usage. That's all. All the code is contained in `/src/main/stats.js` if you want to take a look. Anyway.. it's better than implementing Google Analytics.
-- Out of transparency I've made the statistics public, so you see what I see. Stats here: [https://fs25.rotjong.xyz/stats.php?view](https://fs25.rotjong.xyz/stats.php?view)
+- Out of transparency I've made the statistics public, so you see what I see. Stats here: [https://fs25.rotjong.xyz/stats.php](https://fs25.rotjong.xyz/stats.php)
 
 [v1.2.4]
 - fixed a crucial typo that could break it completely.
