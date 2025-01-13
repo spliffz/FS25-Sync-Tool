@@ -13,6 +13,13 @@ Needs [F25-Mod-Sync-Server](https://github.com/spliffz/FS25-Mod-Sync-Server) in 
 
 [<img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png">](https://www.buymeacoffee.com/Spliffz)
 
+---
+# Important Update Notice
+If after updating the program you start seeing missing paths, or settings that aren't right you might need to delete your `config.json`.   
+This is located in `%appdata%/fs25-sync-tool`. Just delete the whole folder and it will make a new config when you run it.
+
+---
+
 ### [Features]
   - ## **Also for use with Farming Simulator 22 (FS22)!**
   - Easy to use (but ugly) interface. 
