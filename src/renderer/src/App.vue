@@ -174,6 +174,12 @@ const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstra
     <div class="actions1">
       <div class="action">
         <input v-model="modserverUrl" type="text" placeholder="http://here.goes.your.server.com" />
+        <div class="tooltipx tooltipx_bottom">
+          <img src="../src/assets/Question.png" class="icon" />
+          <span class="tooltiptext_bottom">
+            Here goes the IP/URL of the server running FS25-mod-server.
+          </span>
+        </div>
       </div>
     </div>
 
@@ -206,7 +212,7 @@ const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstra
       <div class="tab-content" id="myTabContent">
         <div class="tab-pane fade show active" id="home-tab-pane" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
           <div class="logboxWrapper">
-            <textarea id="logbox" v-model="logboxContents" class="logbox"></textarea>
+            <textarea id="logbox" v-model="logboxContents" readonly class="logbox"></textarea>
           </div>
         </div>
 

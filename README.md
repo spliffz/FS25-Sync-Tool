@@ -3,13 +3,13 @@
    
 Syncs mods for Farming Simulator 22 or 25 across multiple pc's.   
 Client-side application.   
-Needs [F25-Mod-Sync-Server](https://github.com/spliffz/FS25-Mod-Sync-Server) in combination usage.
+Needs [FS25-Mod-Sync-Server](https://github.com/spliffz/FS25-Mod-Sync-Server) in combination usage.
    
 ![FS25 Mod Sync Tool by Spliffz](http://fs25.rotjong.xyz/githubpage/FS25-mst-02.png)   
 
 ---
 
-#### Discord: [https://discord.gg/cxs9hcE2X6](https://discord.gg/cxs9hcE2X6)   
+#### Question? Issues? Ideas? Join the Discord: [https://discord.gg/cxs9hcE2X6](https://discord.gg/cxs9hcE2X6)   
 
 [<img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png">](https://www.buymeacoffee.com/Spliffz)
 
