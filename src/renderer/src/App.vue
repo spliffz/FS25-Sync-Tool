@@ -184,6 +184,17 @@ function onNewServerSelected() {
   // window.electron.ipcRenderer.send('runModManagerServerChange')
 }
 
+function playFarmSim() {
+  // overlay
+  $('#overlayBackgroundPlay').show()
+  $('#playOverlay').show()
+
+  // process watcher
+
+  // if process quits revert gamesettings.xml
+}
+
+
 // ### Main Code
 window.renderer.welcome()
 
@@ -197,7 +208,14 @@ getServerList()
 </script>
 
 <template>
-  
+  <div id="overlayBackgroundPlay" class="overlayBackground">
+    <div id="playOverlay" class="profilesOverlay centerDiv">
+      Running Farm Simulator <br />
+      This app is locked while Farm Sim runs. <br />
+      It will continue to work on the background but you can't interact with it.
+    </div>
+  </div>
+
   <ProfileOverlay />
 
   <div class="logo_fs25_mst"><img src="./assets/fs25-sync-tool-logo.png" class="img" />
@@ -225,6 +243,9 @@ getServerList()
       </div>
       <div class="action">
         <a target="_blank" rel="noreferrer" @click="openServerProfiles">Profiles</a>
+      </div>
+      <div class="action">
+        <a target="_blank" rel="noreferrer" @click="playFarmSim">Play</a>
       </div>
     </div>
   </div>

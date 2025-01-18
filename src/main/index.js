@@ -1,5 +1,5 @@
 import { app, dialog, shell, BrowserWindow, ipcMain, Tray, Menu, nativeImage } from 'electron'
-import { join } from 'path'
+import { join, parse } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import Axios from 'axios'
@@ -95,7 +95,8 @@ function IPC_openServerProfiles() {
 }
 
 function IPC_getServerList() {
-  mainWindow.send('IPC_getServerList', [{ data: getJSONServerList(config.get('servers')), name: serverDisplayName }] )
+  modIndex = config.get('servers')[config.get('modserverID')].id
+  mainWindow.send('IPC_getServerList', [{ data: getJSONServerList(config.get('servers')), name: serverDisplayName, modservID: modIndex }] )
 }
 
 function IPC_profiles_del_server(index) {
@@ -304,9 +305,23 @@ app.whenReady().then(() => {
     config.set('modserverID', index)
     config.set('modserverHostname', url)
     writeLog('Changed Modserver URL to: ' + props, 'info')
+    modIndex = config.get('servers')[config.get('modserverID')].id
     modserverUrl = config.get('modserverHostname')
     setMainVars()
     IPC_sendModserverUrl(modserverUrl)
+
+    let pffl = config.get('profileFolderLocation')[0]
+    let folderLocationPath = join(pffl, 'profiles', config.get('servers')[config.get('modserverID')].id)
+  
+    console.log(folderLocationPath + '\\mods\\')
+    if (selectedFSVersion == '25') {
+      config.set('fs25_modFolderLocation', [folderLocationPath + '\\mods\\'])
+    } 
+    if (selectedFSVersion == '22') {
+      config.set('fs22_modFolderLocation', [folderLocationPath + '\\mods\\'])
+    } 
+
+
     serverDisplayName = config.get('modserverID') + '. ' + config.get('modserverHostname')
     let slist = getJSONServerList(config.get('servers'))
     // console.log(slist)
@@ -471,6 +486,7 @@ app.whenReady().then(() => {
 
 })
 
+
 function IPC_profile_openServerInfo(id) {
   // console.log(typeof id)
   let slist = getJSONServerList(config.get('servers'))
@@ -488,9 +504,6 @@ function IPC_profile_openServerInfo(id) {
       
       mainWindow.send('IPC_getServerURL', { data: d, id: id, index: index})
     }
-    
-  
-
   }
 }
 
@@ -514,6 +527,10 @@ function isInArray(arrayObj, prop, val) {
 
 
 
+let fsFolder
+let gamesettingsXML
+fsFolder = join(os.homedir(), 'Documents', 'My Games', 'FarmingSimulator2025')
+gamesettingsXML = join(fsFolder, 'gameSettings.xml')
 
 function runModManagerServerChange(serverID) {
   // okay
@@ -527,12 +544,98 @@ function runModManagerServerChange(serverID) {
 
   let pffl = config.get('profileFolderLocation')[0]
   let folderLocationPath = join(pffl, 'profiles', serverID )
-  console.log(folderLocationPath)
-  if(fs.existsSync(folderLocationPath)) {
-    console.log('yes')
-  } else {
+  // console.log(folderLocationPath)
+  
+  // check if folders exists
+  if(!fs.existsSync(folderLocationPath)) {
     fs.mkdirSync(folderLocationPath + '\\mods\\', {recursive: true})
   }
+  
+  // backup and edit gameSettings.xml
+  if(!fs.existsSync(folderLocationPath + '\\backups\\')) {
+    fs.mkdirSync(folderLocationPath + '\\backups\\', {recursive: true})
+  }
+  // fsFolder = join(os.homedir(), 'Documents', 'My Games', 'FarmingSimulator2025')
+  // gamesettingsXML = join(fsFolder, 'gameSettings.xml')
+  // console.log(fsFolder)
+  fs.copyFileSync(gamesettingsXML, folderLocationPath + '\\backups\\gameSettings.xml')
+
+  editGameSettingsXML(gamesettingsXML, fsFolder)
+}
+
+function disableCustomModsfolder(gamesettingsXML_local, modIndex) {
+  let parseString = require("xml2js").parseString
+  let xml2js = require("xml2js")
+  
+  fs.readFile(gamesettingsXML_local, "utf-8", function(err, data) {
+    if (err) console.log(err)
+  
+    // console.log(data)
+  
+    parseString(data, function(err, result) {
+      if (err) console.log(err)
+      // console.log(result)
+      let json = result
+      // console.log(json.gameSettings.modsDirectoryOverride)
+      let modsdirective = json.gameSettings.modsDirectoryOverride
+      // console.log(modsdirective[0]['$'])
+      // let pffl = config.get('profileFolderLocation')[0]
+      // let folderLocationPath = join(pffl, 'profiles', modIndex )
+
+      modsdirective[0]['$'].active = false
+      // modsdirective[0]['$'].directory = join(folderLocationPath, '\\mods\\')
+      // console.log(modsdirective[0]['$'])
+  
+      let builder = new xml2js.Builder()
+      var xml = builder.buildObject(json)
+  
+      fs.writeFile(gamesettingsXML_local, xml, function(err, data) {
+        if (err) console.log(err)
+        
+        console.log('Quit Success!')
+      })
+    })
+    fs.close(gamesettingsXML)
+  })
+}
+
+
+async function editGameSettingsXML(gamesettingsXML_local, fsFolder) {
+  let parseString = require("xml2js").parseString
+  let xml2js = require("xml2js")
+
+  fs.readFile(gamesettingsXML_local, "utf-8", function(err, data) {
+    if (err) console.log(err)
+
+    // console.log(data)
+
+    parseString(data, function(err, result) {
+      if (err) console.log(err)
+      // console.log(result)
+      let json = result
+      // console.log(json.gameSettings.modsDirectoryOverride)
+      let modsdirective = json.gameSettings.modsDirectoryOverride
+      // console.log(modsdirective[0]['$'])
+      let pffl = config.get('profileFolderLocation')[0]
+      let folderLocationPath = join(pffl, 'profiles', modIndex )
+      console.log(folderLocationPath)
+
+      modsdirective[0]['$'].active = true
+      modsdirective[0]['$'].directory = join(folderLocationPath, '\\mods\\')
+      // modsdirective[0]['$'].active = 'true'
+      // modsdirective[0]['$'].directory = join(fsFolder, '\\mods\\')
+      console.log(modsdirective[0]['$'])
+
+      let builder = new xml2js.Builder()
+      var xml = builder.buildObject(json)
+
+      fs.writeFile(gamesettingsXML_local, xml, function(err, data) {
+        if (err) console.log(err)
+        
+        console.log('Success!')
+      })
+    })
+  })
 }
 
 
@@ -544,15 +647,20 @@ function runModManagerServerChange(serverID) {
 
 
 
+app.on('before-quit', () => {
+  disableCustomModsfolder(gamesettingsXML, config.get('modserverID'))
+})
 
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
+  // setTimeout(() => {
+    if (process.platform !== 'darwin') {
+      app.quit()
+    }
+  // }, 3000)
 })
 
 
@@ -704,9 +812,30 @@ if (backupEnabled === '') {
 let deleteBackupFiles = false
 
 let serverDisplayName = config.get('modserverID') + '. ' + config.get('modserverHostname')
-
+let modIndex = config.get('servers')[config.get('modserverID')].id
+// console.log('MI: ' + modIndex)
 // -------------------------------------------------------
 // ### MAIN FUNCTIONS
+
+const exec = require('child_process').exec;
+
+ async function isRunning(query, cb) {
+  let platform = process.platform;
+  let cmd = '';
+  switch (platform) {
+    case 'win32' : cmd = `tasklist`; break;
+    case 'darwin' : cmd = `ps -ax | grep ${query}`; break;
+    case 'linux' : cmd = `ps -A`; break;
+    default: break;
+  }
+  exec(cmd, (err, stdout, stderr) => {
+    cb(stdout.toLowerCase().indexOf(query.toLowerCase()) > -1);
+  });
+}
+
+isRunning('firefox.exe', (status) => {
+  console.log('process Status: ' + status); // true|false
+})
 
 
 function setCheckInterval(minutes) {
@@ -769,6 +898,20 @@ function runPeriodicCheck() {
     }, config.get('periodicCheckIntervalMS'))
   }
 }
+
+let isRunningInterval
+
+async function checkIfFarmSimRunning() {
+  clearInterval(isRunningInterval)
+
+  isRunning('firefox.exe', (status) => {
+    console.log('process Status: ' + status); 
+  } )  
+  isRunningInterval = setTimeout(checkIfFarmSimRunning(), 10000)
+}
+
+// checkIfFarmSimRunning()
+
 
 
 
@@ -995,6 +1138,7 @@ import os from 'os'
 import nodePath from 'path'
 import md5File from 'md5-file'
 import { getJSON } from 'jquery'
+import { setInterval } from 'timers/promises'
 
 
 

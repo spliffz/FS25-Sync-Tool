@@ -1,3 +1,9 @@
+[v1.3.0]
+- Added Multi Server Support!
+  You can now add all your favorite servers and sync with all of them and the mods will not be overwritten. 
+  Every 'server entry' has it's own profile and modfolder located in %USERPROFILE%\Documents\My Games\FS25-Sync-Tool\ - You can change this to your liking.
+
+
 [v1.2.5]
 - added minimum anonymous statistics: Hardware ID and IP address. I've no other way of knowing how many times the program is used and I like to have a minimum amount of statistics so I know a bit more about the usage. That's all. All the code is contained in `/src/main/stats.js` if you want to take a look. Anyway.. it's better than implementing Google Analytics.
 - Out of transparency I've made the statistics public, so you see what I see. Stats here: https://fs25.rotjong.xyz/stats.php?view
