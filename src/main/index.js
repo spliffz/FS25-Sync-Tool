@@ -55,7 +55,7 @@ function writeLog(msg, type=null) {
   // BrowserWindow.getFocusedWindow().webContents.send('IPC_sendToLog', { data: msg })
 }
 function IPC_sendModserverUrl(msg) {
-  mainWindow.send('getModserverUrl', { data: msg })
+  mainWindow.send('getModserverUrl', { data: serverDisplayName })
 }
 
 function IPC_sendVersionNumber() {
@@ -75,6 +75,39 @@ function IPC_minimizeToTray() {
   mainWindow.send('IPC_minimizeToTray', { data: minimizeToTray })
 }
 
+function IPC_profiles_addServer() {
+  console.log('IPC_profiles_addServer!')
+  mainWindow.send('IPC_profiles_addServer', { data: 'success' })
+}
+
+function getJSONServerList(serverList) {
+  const servers = serverList
+  const stringified = JSON.stringify(servers)
+  const parsed = JSON.parse(stringified)
+  return parsed
+}
+
+function IPC_openServerProfiles() {
+  console.log('IPC_openServerProfiles')
+  mainWindow.send('IPC_getProfileFolderPath', { data: config.get('profileFolderLocation')})
+  mainWindow.send('IPC_getServerList', { data: getJSONServerList(config.get('servers'))})
+  // let p = getJSONServerList(config.get('servers'))
+}
+
+function IPC_getServerList() {
+  mainWindow.send('IPC_getServerList', [{ data: getJSONServerList(config.get('servers')), name: serverDisplayName }] )
+}
+
+function IPC_profiles_del_server(index) {
+  let slist = getJSONServerList(config.get('servers'))
+  let splice = slist.splice(index, 1)
+  console.log('[0] Array Entry ' + index + ' Deleted')
+  config.set('servers', slist)
+  mainWindow.send('IPC_profiles_del_server', {data: 'OK'})
+  console.log(config.get('servers'))
+}
+
+
 const width = 780
 const height = 520
 const opts = {
@@ -93,6 +126,18 @@ const opts = {
 }
 
 let mainWindow = null
+// let $ = require('jquery');
+// mainWindow.$ = $;
+
+const jsdom = require('jsdom');
+const { JSDOM } = jsdom;
+const { window } = new JSDOM();
+const { document } = (new JSDOM('')).window;
+global.document = document;
+
+// var $ = require('jquery')(window);
+
+
 
 function createWindow(opts) {
   mainWindow = new BrowserWindow(opts)
@@ -110,7 +155,7 @@ function createWindow(opts) {
   })
 
   mainWindow.on('minimize', (event) => {
-    if(config.get('minimizeToTray') == 'enabled') {
+    if (config.get('minimizeToTray') == 'enabled') {
       event.preventDefault()
       isWindowHidden = true
       mainWindow.hide()
@@ -128,6 +173,7 @@ function createWindow(opts) {
 
   mainWindow.setIcon(appIcon)
 
+
   // HMR for renderer base on electron-vite cli.
   // Load the remote URL for development or the local html file for production.
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
@@ -136,7 +182,6 @@ function createWindow(opts) {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
 }
-
 
 
 
@@ -249,6 +294,29 @@ app.whenReady().then(() => {
   
   ipcMain.on('saveModserverUrl', (event, props) => {
     // console.log(props)
+    let split = props.split(" ")
+    let url = split[1]
+    let indexNR = split[0]
+    // let index = indexNR.substr(indexNR.length-1, 1)
+    let index = indexNR.replace('.', '')
+    // console.log('indexNR: ' + index)
+
+    config.set('modserverID', index)
+    config.set('modserverHostname', url)
+    writeLog('Changed Modserver URL to: ' + props, 'info')
+    modserverUrl = config.get('modserverHostname')
+    setMainVars()
+    IPC_sendModserverUrl(modserverUrl)
+    serverDisplayName = config.get('modserverID') + '. ' + config.get('modserverHostname')
+    let slist = getJSONServerList(config.get('servers'))
+    // console.log(slist)
+    let mid = slist[config.get('modserverID')].id
+    // console.log(mid)
+    runModManagerServerChange(mid)
+  })
+
+  ipcMain.on('saveProfileserverUrl', (event, props) => {
+    console.log(props)
     config.set('modserverHostname', props)
     writeLog('Changed Modserver URL to: ' + props, 'info')
     modserverUrl = config.get('modserverHostname')
@@ -295,6 +363,22 @@ app.whenReady().then(() => {
     })
   })
 
+  ipcMain.on('locateProfileFolder', (event, props) => {
+    // console.log(props)
+    dialog.showOpenDialog({
+      properties: [
+        'openDirectory'
+      ]
+    }).then(result => {
+      // console.log(result)
+      let fpath = result.filePaths + '\\'
+      // console.log('fpath: ' + fpath)
+      config.set('profileFolderLocation', [ fpath ])
+      mainWindow.send('profileFolderDialogLocation', result.filePaths)
+      writeLog('Profile Folder Changed to: ' + result.filePaths)
+    })
+  })
+
 
   ipcMain.on('openLink_Github', (event, props) => {
     shell.openPath('https://github.com/spliffz/FS25-Sync-Tool')
@@ -325,6 +409,57 @@ app.whenReady().then(() => {
     setVersion(props)
   })
 
+  ipcMain.on('profiles_addServer', (event, props) => {
+    console.log('addserver!')
+    profiles_addServer(props)
+  })
+
+  ipcMain.on('IPC_openServerProfiles', (event, props) => {
+    IPC_openServerProfiles();
+  })
+
+  ipcMain.on('getServerList', (event, props) => {
+    IPC_getServerList()
+  })
+
+  ipcMain.on('profile_openServerInfo', (event, props) => (
+    IPC_profile_openServerInfo(props)
+  ))
+
+  ipcMain.on('profiles_del_server', (event, props) => {
+    console.log(props)
+    IPC_profiles_del_server(props)
+  })
+
+  ipcMain.on('profiles_update_server', (event, props) => {
+    let slist = getJSONServerList(config.get('servers'))
+    // console.log(props[0].url)
+    // slist[props[0].id]
+    let arrayz
+    // console.log(props[0].id)
+    arrayz = slist.map(function(el) {
+      // console.log(el)
+      if (el.id == props[0].id) {
+        return {
+          id: el.id,
+          name: '',
+          url: props[0].url
+        }
+      } else {
+        //console.log('error!');
+        return el
+      }
+    })
+
+    config.set('servers', arrayz)
+    // console.log(arrayz)
+    mainWindow.send('IPC_profiles_update_server', { data: 'OK'})
+  })
+
+
+
+
+
   createWindow(opts)
 
   app.on('activate', function () {
@@ -335,6 +470,81 @@ app.whenReady().then(() => {
 
 
 })
+
+function IPC_profile_openServerInfo(id) {
+  // console.log(typeof id)
+  let slist = getJSONServerList(config.get('servers'))
+
+  if (isInArray(slist, "id", id) !== -1) {
+    
+    const index = slist.findIndex(object => {
+      if (object['id'] === id) {
+        return object['id'] === id
+      }
+    })
+    
+    if (index !== -1) {
+      let d = slist[index]['url']
+      
+      mainWindow.send('IPC_getServerURL', { data: d, id: id, index: index})
+    }
+    
+  
+
+  }
+}
+
+function isInArray(arrayObj, prop, val) {
+  // prop = 'id';
+  // val = 'bla';
+  
+  const index = arrayObj.findIndex(object => {
+    if (object[prop] === val) {
+      return object[prop] === val
+    }
+  })
+  
+  if (index !== -1) {
+    return true
+  } else {
+    return -1
+  }
+}
+
+
+
+
+
+function runModManagerServerChange(serverID) {
+  // okay
+  // 1. backup mods - nah, see #5
+  // 2. make profile folder for selected version if not exists
+  // 3. set as cwd and sync with server
+  // 4. backup gamesettings.xml
+  // 5. make gamesettings.xml for every profile
+  //    - see if you can include parts, so it's modulair
+  //    you only need 1 tag anyway: <modsDirectoryOverride active="false" directory="C:/Temp"/>
+
+  let pffl = config.get('profileFolderLocation')[0]
+  let folderLocationPath = join(pffl, 'profiles', serverID )
+  console.log(folderLocationPath)
+  if(fs.existsSync(folderLocationPath)) {
+    console.log('yes')
+  } else {
+    fs.mkdirSync(folderLocationPath + '\\mods\\', {recursive: true})
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
@@ -372,7 +582,15 @@ if (app.getVersion() == '1.2.3') {
 }
 
 
+if (typeof config.get('servers') === 'undefined') {
+  const s = []
+  config.set('servers', JSON.stringify(s))
+}
 
+
+if (typeof config.get('profileFolderLocation') === 'undefined') {
+  config.set('profileFolderLocation', os.homedir + '\\Documents\\My Games\\FS25-Sync-Tool-Profiles')
+}
 if (typeof config.get('anonymousStats') === 'undefined') {
   config.set('anonymousStats', 'enabled')
 }
@@ -424,6 +642,10 @@ if (typeof config.get('backupEnabled') === 'undefined') {
 if (typeof config.get('winBounds') === 'undefined') { 
   config.set('winBounds', '')
 }
+if (typeof config.get('modserverID') === 'undefined') { 
+  config.set('modserverID', '0')
+}
+
 
 function setMainVars() {
   serverUrl = config.get('modserverHostname')
@@ -481,6 +703,7 @@ if (backupEnabled === '') {
 
 let deleteBackupFiles = false
 
+let serverDisplayName = config.get('modserverID') + '. ' + config.get('modserverHostname')
 
 // -------------------------------------------------------
 // ### MAIN FUNCTIONS
@@ -568,6 +791,22 @@ function deletingBackupFiles() {
   writeLog('Backup Files Deleted.', 'info')
 }
 
+function profiles_addServer(url) {
+  console.log('profiles_addServer!')
+  writeLog('New server added: ' + url, 'info')
+  
+  const servers = getJSONServerList(config.get('servers'))
+  console.log(servers)
+  let newServerArray = '{ "id": "' + randomChars(8) + '", "name": "", "url": "' + url + '" }'
+  servers.push(JSON.parse(newServerArray))
+  console.log(servers)
+
+  config.set('servers', servers)
+  console.log('--------------')
+  console.log(config.get('servers'))
+  IPC_profiles_addServer()
+}
+
 function setVersion(version) {
   if (version == '22') {
     pre = 'fs22_'
@@ -584,6 +823,17 @@ function setVersion(version) {
   writeLog('Using Folder: ' + modsPath, 'info')
 }
 
+function randomChars(length) {
+  let result = '';
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const charactersLength = characters.length;
+  let counter = 0;
+  while (counter < length) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    counter += 1;
+  }
+  return result;
+}
 
 async function getListFromServer() {
   // get json list from server
@@ -744,6 +994,7 @@ import fs, { write } from 'fs'
 import os from 'os'
 import nodePath from 'path'
 import md5File from 'md5-file'
+import { getJSON } from 'jquery'
 
 
 

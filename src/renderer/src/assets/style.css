@@ -61,6 +61,9 @@ input {
 .form-select {
   font-size: 0.8rem !important;
 }
+.btn {
+  font-size: 0.8rem !important;
+}
 
 /* Tooltip container */
 .tooltipx {
@@ -123,6 +126,77 @@ input {
   margin: 0 auto;
 }
 
+#profilesSettingsWrapper {
+}
+
+.overlayBackground {
+  background-color: #000000d4;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  display: none;
+}
+
+.centerAbsDiv {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+}
+.centerDiv {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  margin: 20px;
+  border-radius: 7px;
+}
+
+.profilesOverlay {
+  position: absolute;
+  background-color: #0c0c0c;
+  /* height: 100%; */
+  width: 95%;
+  z-index: 999;
+  top: 0px;
+  padding: 20px;
+  margin-inline: auto;
+  left: 0;
+  font-size: 0.8rem;
+  border: 1px solid #417e49;
+  display: none;
+}
+
+#profilesSettingsWrapper {
+  margin-top: 15px;
+}
+
+.overlay_closeButton {
+  float: right;
+}
+
+#profiles_serverList {
+  height: 170px;
+  overflow-y: auto;
+}
+
+.profiles_addServerWrapper {
+  width: 86% !important;
+  display: inline-flex !important;
+}
+
+.profiles_formLabel {
+  width: fit-content;
+  display: inline-flex;
+  padding-right: 10px;
+}
+.profiles_inputTextSuccess {
+  color: rgb(0, 196, 0) !important;
+  font-weight: bold !important; 
+}
 
 .img {
   height: 100px
@@ -197,6 +271,10 @@ input {
 
 .checkInterval {
   max-width: 50%;
+}
+
+.actions1 {
+  width: 40%;
 }
 
 .icon {

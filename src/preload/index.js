@@ -21,8 +21,14 @@ if (process.contextIsolated) {
       locateModFolder: () => {
         ipcRenderer.send('locateModFolder')
       },
+      locateProfileFolder: () => {
+        ipcRenderer.send('locateProfileFolder')
+      },
       saveModserverUrl: (func) => {
         ipcRenderer.send('saveModserverUrl', (event, args) => func(event, args))
+      },
+      runModManagerServerChange: (func) => {
+        ipcRenderer.send('runModManagerServerChange', (event, args) => func(event, args))
       },
       deleteBackupFiles: () => {
         ipcRenderer.send('deleteBackupFiles')

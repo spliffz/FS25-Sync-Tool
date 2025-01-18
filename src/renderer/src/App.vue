@@ -1,10 +1,12 @@
 <script setup>
 import About from './components/About.vue'
+import ProfileOverlay from './components/ProfileOverlay.vue'
 import { ref } from 'vue'
 import * as bootstrap from 'bootstrap'
 import { ModalsContainer, useModal } from 'vue-final-modal'
 import Modal_backupDisabled from './components/Modal_backupDisabled.vue'
 import { Dropdown, Tooltip, Menu, vTooltip } from 'floating-vue'
+
 
 // ### VARIABLES
 let logboxContents = ref('')
@@ -17,6 +19,7 @@ let checkInterval = ref('')
 let checkOnInterval = ref('')
 let minimizeToTray = ref('')
 let anonymousStats = ref('')
+let availableServers = ref('')
 
 // ### IPC Handlers
 // const checkMods = () => window.electron.ipcRenderer.send('checkMods')
@@ -29,9 +32,15 @@ const locateModFolder = () => window.renderer.locateModFolder()
 const deleteBackupFiles = () => window.renderer.deleteBackupFiles()
 // const deleteBackupFiles = () => window.electron.ipcRenderer.send('deleteBackupFiles')
 const getCurrentVersion = window.renderer.getVersionNumber()
- 
 
-
+let serverList = ref('')
+const getServerList = () => window.electron.ipcRenderer.send('getServerList')
+window.electron.ipcRenderer.on('IPC_getServerList', (event, props) => {
+  console.log(props[0])
+  serverList.value = props[0].data
+  availableServers.value = modserverUrl
+  // console.log(serverList)
+})
 
 window.electron.ipcRenderer.on('IPC_anonymousStats', (event, props) => {
   anonymousStats.value = props.data
@@ -161,34 +170,61 @@ function onSetCheckOnInterval() {
   // window.renderer.onSetCheckOnInterval(checkOnInterval.value)
 }
 
+function openServerProfiles() {
+  window.electron.ipcRenderer.send('IPC_openServerProfiles')
+  $('#overlayBackground').show()
+  $('#profilesOverlay').show()
+}
+
+function onNewServerSelected() {
+  // console.log(availableServers)
+  // console.log($('#availableServers2').val())
+  window.electron.ipcRenderer.send('saveModserverUrl', $('#availableServers2').val())
+  // mod manager magic
+  // window.electron.ipcRenderer.send('runModManagerServerChange')
+}
+
 // ### Main Code
 window.renderer.welcome()
 
 const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
 const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
 
+
+getServerList()
+
+
 </script>
 
 <template>
+  
+  <ProfileOverlay />
+
   <div class="logo_fs25_mst"><img src="./assets/fs25-sync-tool-logo.png" class="img" />
     <div class="actions1">
       <div class="action">
-        <input v-model="modserverUrl" type="text" placeholder="http://here.goes.your.server.com" />
-        <div class="tooltipx tooltipx_bottom">
+        <select v-model="availableServers" id="availableServers2" class="form-select" @change="onNewServerSelected">
+          <option v-for="(server, key) in serverList">{{ key }}. {{ server.url }}</option>
+        </select>
+        <!-- <input v-model="modserverUrl" type="text" placeholder="http://here.goes.your.server.com" /> -->
+        <!-- <div class="tooltipx tooltipx_bottom">
           <img src="../src/assets/Question.png" class="icon" />
           <span class="tooltiptext_bottom">
             Here goes the IP/URL of the server running FS25-mod-server.
           </span>
-        </div>
+        </div> -->
       </div>
     </div>
 
     <div class="actions">
-      <div class="action">
+      <!-- <div class="action">
         <a target="_blank" rel="noreferrer" @click="saveModserverUrl" class="button_hostname">Save Hostname</a>
-      </div>
+      </div> -->
       <div class="action">
         <a target="_blank" rel="noreferrer" @click="checkMods">Sync Mods</a>
+      </div>
+      <div class="action">
+        <a target="_blank" rel="noreferrer" @click="openServerProfiles">Profiles</a>
       </div>
     </div>
   </div>
