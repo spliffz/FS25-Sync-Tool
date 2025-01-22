@@ -20,6 +20,8 @@ let checkOnInterval = ref('')
 let minimizeToTray = ref('')
 let anonymousStats = ref('')
 let availableServers = ref('')
+let FSFolderPath = ref('')
+
 
 // ### IPC Handlers
 // const checkMods = () => window.electron.ipcRenderer.send('checkMods')
@@ -28,6 +30,7 @@ const checkMods = () => window.renderer.checkMods()
 const saveModserverUrl = () => window.electron.ipcRenderer.send('saveModserverUrl', modserverUrl)
 // const saveModserverUrl = () => window.renderer.saveModserverUrl()
 const locateModFolder = () => window.renderer.locateModFolder()
+const locateFSFolder = () => window.renderer.locateFSFolder()
 // const locateModFolder = () => window.electron.ipcRenderer.send('locateModFolder')
 const deleteBackupFiles = () => window.renderer.deleteBackupFiles()
 // const deleteBackupFiles = () => window.electron.ipcRenderer.send('deleteBackupFiles')
@@ -42,6 +45,10 @@ window.electron.ipcRenderer.on('IPC_getServerList', (event, props) => {
   // console.log(serverList)
 })
 
+
+window.electron.ipcRenderer.on('IPC_sendFSClosed', (event, props) => {
+  onFarmSimClosed()
+})
 window.electron.ipcRenderer.on('IPC_anonymousStats', (event, props) => {
   anonymousStats.value = props.data
 })
@@ -61,6 +68,11 @@ window.electron.ipcRenderer.on('modFolderDialogLocation', (event, props) => {
   modFolderPath.value = props[0]
 })
 
+window.electron.ipcRenderer.on('FSFolderDialogLocation', (event, props) => {
+  // console.log(props)
+  FSFolderPath.value = props[0]
+})
+
 window.electron.ipcRenderer.on('IPC_sendToLog', (event, props) => {
   //console.log('F: Props.data: ' + props.data)
   writeLog(props.data, props.t)
@@ -69,6 +81,11 @@ window.electron.ipcRenderer.on('IPC_sendToLog', (event, props) => {
 window.electron.ipcRenderer.on('IPC_getModFolderPath', (event, props) => {
   // console.log(props)
   modFolderPath.value = props.data
+})
+
+window.electron.ipcRenderer.on('IPC_getFSFolderPath', (event, props) => {
+  // console.log(props)
+  FSFolderPath.value = props.data
 })
 
 window.electron.ipcRenderer.on('getVersionNumber', (event, props) => {
@@ -89,6 +106,10 @@ window.electron.ipcRenderer.on('IPC_minimizeToTray', (event, props) => {
   console.log(props)
   minimizeToTray.value = props.data
 })
+window.electron.ipcRenderer.on('IPC_sendFSClosed', (event, props) => {
+  onFarmSimClosed()
+})
+
 
 
 const { open, close } = useModal({
@@ -184,13 +205,18 @@ function onNewServerSelected() {
   // window.electron.ipcRenderer.send('runModManagerServerChange')
 }
 
+function onFarmSimClosed() {
+  $('#overlayBackgroundPlay').hide()
+  $('#playOverlay').hide()
+}
+
 function playFarmSim() {
   // overlay
   $('#overlayBackgroundPlay').show()
   $('#playOverlay').show()
 
   // process watcher
-
+  window.electron.ipcRenderer.send('playGame')
   // if process quits revert gamesettings.xml
 }
 
@@ -212,7 +238,8 @@ getServerList()
     <div id="playOverlay" class="profilesOverlay centerDiv">
       Running Farm Simulator <br />
       This app is locked while Farm Sim runs. <br />
-      It will continue to work on the background but you can't interact with it.
+      It will continue to work on the background but you can't interact with it. I mean.. why would you even want too? <br />
+      Don't you have some hay to wrap up or something?
     </div>
   </div>
 
@@ -285,6 +312,16 @@ getServerList()
                       <option value="22">Farming Simulator 22</option>
                       <option value="25">Farming Simulator 25</option>
                     </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="settings_td">
+                    Farming Simulator Folder Location:</td>
+                  <td class="settings_td">
+                    <div class="input-group">
+                      <input v-model="FSFolderPath" type="text" class="form-control" value="FSFolderPath" />
+                      <button class="btn btn-outline-secondary" type="button" id="locateFSFolder" @click="locateFSFolder">Locate</button>
+                    </div>
                   </td>
                 </tr>
                 <tr>

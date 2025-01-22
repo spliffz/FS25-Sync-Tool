@@ -18,6 +18,9 @@ if (process.contextIsolated) {
       welcome: () => {
         ipcRenderer.send('welcome')
       },
+      locateFSFolder: () => {
+        ipcRenderer.send('locateFSFolder')
+      },
       locateModFolder: () => {
         ipcRenderer.send('locateModFolder')
       },

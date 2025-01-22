@@ -59,6 +59,7 @@
     "axios": "^1.7.9",
     "bootstrap": "^5.3.3",
     "electron-config": "^1.0.0",
+    "find-process": "^1.4.10",
     "floating-vue": "^5.2.2",
     "jquery": "^3.7.1",
     "jsdom": "^26.0.0",

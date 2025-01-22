@@ -8,6 +8,9 @@ const config = new Config()
 import { autoUpdater } from 'electron-updater'
 import { existsSync } from 'fs'
 import { upStats } from './stats'
+// import { exec } from 'child_process'
+// import utils from 'util'
+
 
 // -------------------------------------------------------
 // ### USER VARIABLES
@@ -49,6 +52,9 @@ function IPC_sendFSVersion() {
 }
 function IPC_sendModFolderPath() {
   mainWindow.send('IPC_getModFolderPath', { data: modsPath })
+}
+function IPC_sendFSFolderPath() {
+  mainWindow.send('IPC_getFSFolderPath', { data: FSPath })
 }
 function writeLog(msg, type=null) {
   mainWindow.send('IPC_sendToLog', { data: msg, t: type })
@@ -100,12 +106,21 @@ function IPC_getServerList() {
 }
 
 function IPC_profiles_del_server(index) {
+
+  // present popup: This will delete the whole profile folder including all the mods for this server.
+
+  // if so > delete
+
   let slist = getJSONServerList(config.get('servers'))
   let splice = slist.splice(index, 1)
   console.log('[0] Array Entry ' + index + ' Deleted')
   config.set('servers', slist)
   mainWindow.send('IPC_profiles_del_server', {data: 'OK'})
   console.log(config.get('servers'))
+}
+
+function IPC_sendFSClosed() {
+  mainWindow.send('IPC_sendFSClosed')
 }
 
 
@@ -283,6 +298,7 @@ app.whenReady().then(() => {
 
   ipcMain.on('welcome', () => {
     IPC_sendModFolderPath()
+    IPC_sendFSFolderPath()
     IPC_doBackupEnabled()
     IPC_sendModserverUrl(modserverUrl)
     IPC_sendCheckIntervalStatus()
@@ -316,9 +332,11 @@ app.whenReady().then(() => {
     console.log(folderLocationPath + '\\mods\\')
     if (selectedFSVersion == '25') {
       config.set('fs25_modFolderLocation', [folderLocationPath + '\\mods\\'])
+      modsPath = folderLocationPath + '\\mods\\'
     } 
     if (selectedFSVersion == '22') {
       config.set('fs22_modFolderLocation', [folderLocationPath + '\\mods\\'])
+      modsPath = folderLocationPath + '\\mods\\'
     } 
 
 
@@ -375,6 +393,22 @@ app.whenReady().then(() => {
       config.set(pre + 'modFolderLocation', [ fpath ])
       mainWindow.send('modFolderDialogLocation', result.filePaths)
       writeLog('Mods Folder Changed to: ' + result.filePaths)
+    })
+  })
+
+  ipcMain.on('locateFSFolder', (event, props) => {
+    // console.log(props)
+    dialog.showOpenDialog({
+      properties: [
+        'openDirectory'
+      ]
+    }).then(result => {
+      // console.log(result)
+      let fpath = result.filePaths + '\\'
+      // console.log('fpath: ' + fpath)
+      config.set(pre + 'FSFolderLocation', [ fpath ])
+      mainWindow.send('FSFolderDialogLocation', result.filePaths)
+      writeLog('FS Folder Changed to: ' + result.filePaths)
     })
   })
 
@@ -445,6 +479,27 @@ app.whenReady().then(() => {
     console.log(props)
     IPC_profiles_del_server(props)
   })
+
+  ipcMain.on('playGame', (event, props) => {
+    console.log('playGame!')
+    editGameSettingsXML(gamesettingsXML)
+    let exec = require('child_process').execFile
+    let exe_path = join(FSPath[0], 'x64', 'FarmingSimulator2025Game.exe')
+    console.log('path: ' + exe_path)
+    const rungame = exec(exe_path, function callback(error, stdout, stderr) {
+      console.log(stdout)
+      console.log(stderr)
+    })
+
+    setTimeout(() => {
+      console.log('timer1 finished')
+      //const checkRunningInterval = setInterval(findProcess(), 5000)
+      findProcess()
+      // checkIfFSisRunning()
+    }, 20000)
+
+  })
+
 
   ipcMain.on('profiles_update_server', (event, props) => {
     let slist = getJSONServerList(config.get('servers'))
@@ -560,7 +615,7 @@ function runModManagerServerChange(serverID) {
   // console.log(fsFolder)
   fs.copyFileSync(gamesettingsXML, folderLocationPath + '\\backups\\gameSettings.xml')
 
-  editGameSettingsXML(gamesettingsXML, fsFolder)
+  // editGameSettingsXML(gamesettingsXML, fsFolder)
 }
 
 function disableCustomModsfolder(gamesettingsXML_local, modIndex) {
@@ -595,12 +650,12 @@ function disableCustomModsfolder(gamesettingsXML_local, modIndex) {
         console.log('Quit Success!')
       })
     })
-    fs.close(gamesettingsXML)
+    // fs.close(gamesettingsXML_local)
   })
 }
 
 
-async function editGameSettingsXML(gamesettingsXML_local, fsFolder) {
+async function editGameSettingsXML(gamesettingsXML_local) {
   let parseString = require("xml2js").parseString
   let xml2js = require("xml2js")
 
@@ -699,6 +754,12 @@ if (typeof config.get('servers') === 'undefined') {
 if (typeof config.get('profileFolderLocation') === 'undefined') {
   config.set('profileFolderLocation', os.homedir + '\\Documents\\My Games\\FS25-Sync-Tool-Profiles')
 }
+if (typeof config.get('fs25_FSFolderLocation') === 'undefined') {
+  config.set('fs25_FSFolderLocation', [""])
+}
+if (typeof config.get('fs22_FSFolderLocation') === 'undefined') {
+  config.set('fs22_FSFolderLocation', [""])
+}
 if (typeof config.get('anonymousStats') === 'undefined') {
   config.set('anonymousStats', 'enabled')
 }
@@ -766,7 +827,6 @@ function setDLUrl() {
   return serverUrl + '/mods/'
 }
 
-
 // -------------------------------------------------------
 // ### DON'T TOUCH FROM HERE.
 // THERE BE DRAGONS AND SUCH. JUST GO AWAY.
@@ -785,6 +845,7 @@ if (selectedFSVersion === '22') {
 
 let modserverUrl = config.get('modserverHostname')
 let modFolderPath = config.get(pre + 'modFolderLocation')
+let FSPath = config.get(pre + 'FSFolderLocation')
 console.log(modFolderPath)
 // console.log(typeof(modFolderPath))
 if (modFolderPath === '') {
@@ -813,29 +874,26 @@ let deleteBackupFiles = false
 
 let serverDisplayName = config.get('modserverID') + '. ' + config.get('modserverHostname')
 let modIndex = config.get('servers')[config.get('modserverID')].id
-// console.log('MI: ' + modIndex)
-// -------------------------------------------------------
-// ### MAIN FUNCTIONS
 
-const exec = require('child_process').exec;
-
- async function isRunning(query, cb) {
-  let platform = process.platform;
-  let cmd = '';
-  switch (platform) {
-    case 'win32' : cmd = `tasklist`; break;
-    case 'darwin' : cmd = `ps -ax | grep ${query}`; break;
-    case 'linux' : cmd = `ps -A`; break;
-    default: break;
-  }
-  exec(cmd, (err, stdout, stderr) => {
-    cb(stdout.toLowerCase().indexOf(query.toLowerCase()) > -1);
-  });
+let findProcessTimeout = ''
+function findProcess() {
+  // console.log('interval 2s')
+  const find = require('find-process')
+  find('name', 'FarmingSimulator2025Game.exe')
+    .then(function (list) {
+      if(list == '') {
+        console.log('Process exited. Farmsim Closed, return back to normal state.')
+        IPC_sendFSClosed()
+        clearTimeout(findProcessTimeout)
+      } else {
+        // console.log(list)
+        findProcessTimeout = setTimeout(findProcess, 5000)
+      }
+    }, function (err) {
+      console.log(err.stack || err)
+    })
 }
 
-isRunning('firefox.exe', (status) => {
-  console.log('process Status: ' + status); // true|false
-})
 
 
 function setCheckInterval(minutes) {
@@ -957,11 +1015,13 @@ function setVersion(version) {
     pre = 'fs25_'
   }
   modFolderPath = config.get(pre + 'modFolderLocation')
+  FSPath = config.get(pre + 'FSFolderLocation')
   config.set('selectedFSVersion', version)
   selectedFSVersion = version
   modsPath = modFolderPath[0]
   IPC_sendModFolderPath()
-  console.log(modsPath)
+  IPC_sendFSFolderPath()
+  // console.log(modsPath)
   setMainVars()
   writeLog('Using Folder: ' + modsPath, 'info')
 }
@@ -1139,6 +1199,8 @@ import nodePath from 'path'
 import md5File from 'md5-file'
 import { getJSON } from 'jquery'
 import { setInterval } from 'timers/promises'
+import { execFile } from 'child_process'
+import { stdout } from 'process'
 
 
 
