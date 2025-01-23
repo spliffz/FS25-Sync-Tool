@@ -41,6 +41,9 @@ if (isPrivateRepo) {
 }
 
 // IPC Send
+function IPC_checkForChangelog() {
+  mainWindow.send('IPC_checkForChangelog')
+}
 function IPC_anonymousStats() {
   mainWindow.send('IPC_anonymousStats', { data: anonymousStats })
 }
@@ -320,6 +323,7 @@ app.whenReady().then(() => {
     IPC_sendFSVersion()
     IPC_minimizeToTray()
     IPC_anonymousStats()
+    checkForChangelog()
     welcomeText()
   })
   
@@ -517,7 +521,10 @@ app.whenReady().then(() => {
       findProcess()
       // checkIfFSisRunning()
     }, 20000)
+  })
 
+  ipcMain.on('changelogNsgClosed', (event, props) => {
+    // config.set('previousVersion', app.getVersion())
   })
 
   ipcMain.on('openFolder', (event, props) => {
@@ -617,6 +624,11 @@ function isInArray(arrayObj, prop, val) {
   }
 }
 
+function checkForChangelog() {
+  if (config.get('previousVersion') != app.getVersion()) {
+    IPC_checkForChangelog()
+  }
+}
 
 
 
@@ -810,6 +822,9 @@ if (typeof config.get('periodicCheckAllServers') === 'undefined') {
 }
 if (typeof config.get('minimizeToTray') === 'undefined') {
   config.set('minimizeToTray', 'disabled')
+}
+if (typeof config.get('previousVersion') === 'undefined') {
+  config.set('version', '1.2.5')
 }
 if (typeof config.get('periodicCheckInterval') === 'undefined') {
   config.set('periodicCheckInterval', '60') // default to 60 seconds

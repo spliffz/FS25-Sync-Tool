@@ -46,7 +46,9 @@ window.electron.ipcRenderer.on('IPC_getServerList', (event, props) => {
   // console.log(serverList)
 })
 
-
+window.electron.ipcRenderer.on('IPC_checkForChangelog', (event, props) => {
+  showChangelogMsg()
+})
 window.electron.ipcRenderer.on('IPC_sendFSClosed', (event, props) => {
   onFarmSimClosed()
 })
@@ -230,6 +232,16 @@ function playFarmSim() {
   // if process quits revert gamesettings.xml
 }
 
+function showChangelogMsg() {
+  $('#overlayBackgroundMsg').show()
+  $('#msgOverlay').show()
+}
+
+function closeChangelogMsg() {
+  $('#overlayBackgroundMsg').hide()
+  $('#msgOverlay').hide()
+  window.electron.ipcRenderer.send('changelogNsgClosed', 1)
+}
 
 // ### Main Code
 window.renderer.welcome()
@@ -250,6 +262,28 @@ getServerList()
       This app is locked while Farm Sim runs. <br />
       It will continue to work on the background but you can't interact with it. I mean.. why would you even want too? <br />
       Don't you have some hay to wrap up or something?
+    </div>
+  </div>
+  <div id="overlayBackgroundMsg" class="overlayBackground">
+    <div id="msgOverlay" class="msgOverlay centerDiv">
+      <div id="msgOverlay_msg">
+        <h2>V1.3.0 is here!</h2><br />
+        <strong>Big changes!</strong><br />
+        <br />
+        Introducing Multi Server Sync: Add your favorite servers and keep up to date with a single click! <br />
+        <br />
+        <strong>Hurry up I want to play:</strong><br />
+        First: Click on "Profiles" and add your server(s).<br />
+        Then select the server from the dropdown menu and click "Sync Mods" like usual. When finished press "Play".<br />
+        <br />
+        <strong>Tell me more!</strong><br />
+        Allright! It actually just works like before but now with multiple servers. <br />
+        3 new buttons: "Play", "Profiles" and "Sync Mods ALL". <br />
+        "Play" starts the game with the current profile mods loaded. Exiting the game will revert it back to the normal mods in your documents folder (default location). <br />
+        "Profiles" opens the server profiles menu, where you can manage the servers. <br />
+        "Sync Mods ALL" starts the synchronizing of mods on ALL servers. Use with caution :D
+      </div>
+      <div id="msgOverlay_close" class="text-end"><button class="btn btn-success" @click="closeChangelogMsg">Close</button></div>
     </div>
   </div>
 

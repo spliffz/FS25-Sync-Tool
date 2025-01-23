@@ -135,6 +135,7 @@ input {
   width: 100%;
   position: absolute;
   top: 0;
+  z-index: 1;
   display: none;
 }
 
@@ -156,6 +157,21 @@ input {
 }
 
 .profilesOverlay {
+  position: absolute;
+  background-color: #0c0c0c;
+  /* height: 100%; */
+  width: 95%;
+  z-index: 999;
+  top: 0px;
+  padding: 20px;
+  margin-inline: auto;
+  left: 0;
+  font-size: 0.8rem;
+  border: 1px solid #417e49;
+  display: none;
+}
+
+.msgOverlay {
   position: absolute;
   background-color: #0c0c0c;
   /* height: 100%; */
