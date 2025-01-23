@@ -15,6 +15,9 @@ if (process.contextIsolated) {
       checkMods: () => {
         ipcRenderer.send('checkMods')
       },
+      checkModsAllServers: () => {
+        ipcRenderer.send('checkModsAllServers')
+      },
       welcome: () => {
         ipcRenderer.send('welcome')
       },

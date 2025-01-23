@@ -17,6 +17,7 @@ let doBackupMods = ref('')
 let currentVersion = ref('')
 let checkInterval = ref('')
 let checkOnInterval = ref('')
+let checkOnIntervalAllServers = ref('')
 let minimizeToTray = ref('')
 let anonymousStats = ref('')
 let availableServers = ref('')
@@ -25,6 +26,7 @@ let FSFolderPath = ref('')
 // ### IPC Handlers
 // const checkMods = () => window.electron.ipcRenderer.send('checkMods')
 const checkMods = () => window.renderer.checkMods()
+const checkModsAllServers = () => window.renderer.checkModsAllServers()
 // const welcome = () => window.electron.ipcRenderer.send('welcome')
 const saveModserverUrl = () => window.electron.ipcRenderer.send('saveModserverUrl', modserverUrl)
 // const saveModserverUrl = () => window.renderer.saveModserverUrl()
@@ -96,10 +98,15 @@ window.electron.ipcRenderer.on('IPC_checkIntervalStatus', (event, props) => {
   checkOnInterval.value = props.data
 })
 
+window.electron.ipcRenderer.on('IPC_checkIntervalStatusAllServers', (event, props) => {
+  console.log(props)
+  checkOnIntervalAllServers.value = props.data
+})
+
 window.electron.ipcRenderer.on('IPC_checkInterval', (event, props) => {
   console.log(props)
   checkInterval.value = props.data
-})
+})  
 
 window.electron.ipcRenderer.on('IPC_minimizeToTray', (event, props) => {
   console.log(props)
@@ -189,6 +196,10 @@ function onSetCheckOnInterval() {
   window.electron.ipcRenderer.send('onSetCheckOnInterval', checkOnInterval.value)
   // window.renderer.onSetCheckOnInterval(checkOnInterval.value)
 }
+function onSetCheckOnIntervalAllServers() {
+  window.electron.ipcRenderer.send('onSetCheckOnIntervalAllServers', checkOnIntervalAllServers.value)
+  // window.renderer.onSetCheckOnInterval(checkOnInterval.value)
+}
 
 function openServerProfiles() {
   window.electron.ipcRenderer.send('IPC_openServerProfiles')
@@ -250,28 +261,41 @@ getServerList()
         <select v-model="availableServers" id="availableServers2" class="form-select" @change="onNewServerSelected">
           <option v-for="(server, key) in serverList">{{ key }}. {{ server.url }}</option>
         </select>
-        <!-- <input v-model="modserverUrl" type="text" placeholder="http://here.goes.your.server.com" /> -->
-        <!-- <div class="tooltipx tooltipx_bottom">
-          <img src="../src/assets/Question.png" class="icon" />
-          <span class="tooltiptext_bottom">
-            Here goes the IP/URL of the server running FS25-mod-server.
-          </span>
-        </div> -->
       </div>
     </div>
 
     <div class="actions">
-      <!-- <div class="action">
-        <a target="_blank" rel="noreferrer" @click="saveModserverUrl" class="button_hostname">Save Hostname</a>
-      </div> -->
       <div class="action">
-        <a target="_blank" rel="noreferrer" @click="checkMods">Sync Mods</a>
+        <div class="tooltipx_bottom">
+          <a target="_blank" rel="noreferrer" alt="Sync Mods with selected server" @click="checkMods">Sync Mods</a>
+          <span class="tooltiptext_bottom">
+            Sync mods of SELECTED server
+          </span>
+        </div>
       </div>
       <div class="action">
-        <a target="_blank" rel="noreferrer" @click="openServerProfiles">Profiles</a>
+        <div class="tooltipx_bottom">
+          <a target="_blank" rel="noreferrer" alt="Sync Mods with all servers" @click="checkModsAllServers">Sync Mods ALL</a>
+          <span class="tooltiptext_bottom">
+            Sync mods of ALL servers
+          </span>
+        </div>
       </div>
       <div class="action">
-        <a target="_blank" rel="noreferrer" @click="playFarmSim">Play</a>
+        <div class="tooltipx_bottom">
+          <a target="_blank" rel="noreferrer" @click="openServerProfiles">Profiles</a>
+          <span class="tooltiptext_bottom">
+            Manage servers
+          </span>
+        </div>
+      </div>
+      <div class="action">
+        <div class="tooltipx_bottom">
+          <a target="_blank" rel="noreferrer" @click="playFarmSim">Play</a>
+          <span class="tooltiptext_bottom">
+            Play with mods from selected server
+          </span>
+        </div>
       </div>
     </div>
   </div>
@@ -350,17 +374,18 @@ getServerList()
                 <tr>
                   <td class="settings_td">
                     Periodically check for mods? <br />
-                    If so, check every?
+                    If so, check every? And sync all servers?
                   </td>
                   <td class="settings_td">
                     <div class="input-group">
+
                       <select v-model="checkOnInterval" class="form-select checkInterval" @change="onSetCheckOnInterval" aria-label="">
                         <option value="enabled">Yes</option>
                         <option value="disabled">No</option>
                       </select>
-
+                      
                       <select v-model="checkInterval" class="form-select checkInterval" @change="onSetCheckInterval" aria-label="">
-                        <!-- <option value="1">1 minute</option> -->
+                        <option value="1">1 minute</option>
                         <option value="5">5 minutes</option>
                         <option value="10">10 minutes</option>
                         <option value="30">30 minutes</option>
@@ -368,6 +393,12 @@ getServerList()
                         <option value="360">6 hours</option>
                         <option value="1440">24 hours</option>
                       </select>
+                      
+                      <select v-model="checkOnIntervalAllServers" class="form-select checkInterval" @change="onSetCheckOnIntervalAllServers" aria-label="">
+                        <option value="enabled">Yes</option>
+                        <option value="disabled">No</option>
+                      </select>
+
                     </div>
                   </td>
                 </tr>

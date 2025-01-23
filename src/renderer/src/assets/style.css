@@ -94,17 +94,17 @@ input {
 }
 .tooltipx_bottom .tooltiptext_bottom {
   visibility: hidden;
-  width: 400px;
+  /* width: 400px; */
 
   /* bottom: 100%; */
   top: 100%;
-  left: 50%;
-  margin-left: -200px; /* Use half of the width (120/2 = 60), to center the tooltip */
+  left: 2%;
+  /* margin-left: -200px; Use half of the width (120/2 = 60), to center the tooltip */
 
   background-color: black;
   color: #fff;
   text-align: center;
-  padding: 5px 0;
+  padding: 5px;
   border-radius: 6px;
  
   /* Position the tooltip text - see examples below! */
@@ -198,6 +198,10 @@ input {
   font-weight: bold !important; 
 }
 
+#profiles_serverInfo {
+  display: none;
+}
+
 .openFolder {
   color: #27d92e;
 }
@@ -213,9 +217,9 @@ input {
 
 .actions {
   align-items: center !important;
-  justify-content: center !important;
+  /* justify-content: center !important; */
   padding-top: 0px !important;
-  width: 200px;
+  width: 40% !important;
 }
 
 .versions {
@@ -253,6 +257,10 @@ input {
 }
 .button_hostname {
   background-color: #979797 !important;
+}
+
+.action {
+  position: relative
 }
 
 .action a {

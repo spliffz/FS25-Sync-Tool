@@ -68,6 +68,7 @@ window.electron.ipcRenderer.on('IPC_getServerURL', (event, props) => {
   profiles_profile_id = props.id
   profiles_profile_index = props.index
   profiles_profile_totalMods = props.totalMods
+  $('#profiles_serverInfo').show()
 })
 
 window.electron.ipcRenderer.on('IPC_profiles_del_server', (event, props) => {
@@ -127,7 +128,7 @@ function profiles_update_server() {
     return
   }  
   console.log(profile_serverURL + ' - ' + $('#profiles_itemID').val())
-  window.electron.ipcRenderer.send('profiles_update_server', [{ url: profile_serverURL, id: $('#profiles_itemID').val()}])
+  window.electron.ipcRenderer.send('profiles_update_server', [{ url: profile_serverURL, id: $('#profiles_itemID').val(), folder: $('#profiles_serverFolder').html() }])
 }  
 
 function openFolder(folderID) {
@@ -203,13 +204,10 @@ function openFolder(folderID) {
                 <button type="button" class="btn btn-success" id="profile_updateButton" @click="profiles_update_server">Update</button>
               </div>
               <div class="">
-                <!-- <div class="text-start">
-                  Folder: 
-                </div> -->
-                <div class="text-end">
-                  {{ profiles_profile_folder }} <br /> 
+                <div class="text-end" id="profiles_serverFolder">
+                  {{ profiles_profile_folder }}
                 </div>
-                <div class="text-end">
+                <div class="text-end" id="profiles_serverInfo">
                   {{ profiles_profile_totalMods }} Mods | 
                   <button class="openFolder" @click="openFolder(profiles_profile_index)">[OPEN]</button>
                 </div>

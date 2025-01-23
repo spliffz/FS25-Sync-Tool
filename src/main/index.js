@@ -72,6 +72,10 @@ function IPC_sendCheckIntervalStatus() {
   console.log('ipc_CheckIntervalStatus!')
   mainWindow.send('IPC_checkIntervalStatus', { data: config.get('periodicCheck') })
 }
+function IPC_sendCheckIntervalStatusAllServers() {
+  console.log('IPC_checkIntervalStatusAllServers!')
+  mainWindow.send('IPC_checkIntervalStatusAllServers', { data: config.get('periodicCheckAllServers') })
+}
 
 function IPC_sendCheckInterval() {
   console.log('ipc_CheckInterval!')
@@ -126,6 +130,7 @@ async function IPC_profiles_del_server(index) {
 }
 
 function IPC_sendFSClosed() {
+  disableCustomModsfolder(gamesettingsXML, config.get('modserverID'))
   mainWindow.send('IPC_sendFSClosed')
 }
 
@@ -295,11 +300,13 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  // IPC test
-  // ipcMain.on('ping', () => console.log('pong'))
   ipcMain.on('checkMods', () => {
     //console.log('checkMods')
-    checkMods()
+    checkMods(false)
+  })
+  ipcMain.on('checkModsAllServers', () => {
+    //console.log('checkMods')
+    checkModsAllServers()
   })
 
   ipcMain.on('welcome', () => {
@@ -308,6 +315,7 @@ app.whenReady().then(() => {
     IPC_doBackupEnabled()
     IPC_sendModserverUrl(modserverUrl)
     IPC_sendCheckIntervalStatus()
+    IPC_sendCheckIntervalStatusAllServers()
     IPC_sendCheckInterval()
     IPC_sendFSVersion()
     IPC_minimizeToTray()
@@ -453,6 +461,12 @@ app.whenReady().then(() => {
     setPeriodicCheck(props)
   })
   
+  ipcMain.on('onSetCheckOnIntervalAllServers', (event, props) => {
+    console.log(props)
+    runPeriodicCheck()
+    config.set('periodicCheckAllServers', props)
+  })
+  
   ipcMain.on('onSetCheckInterval', (event, props) => {
     console.log(props)
     setCheckInterval(props)
@@ -528,7 +542,8 @@ app.whenReady().then(() => {
         return {
           id: el.id,
           name: '',
-          url: props[0].url
+          url: props[0].url,
+          folder: props[0].folder
         }
       } else {
         //console.log('error!');
@@ -642,6 +657,7 @@ function runModManagerServerChange(serverID) {
 }
 
 function disableCustomModsfolder(gamesettingsXML_local, modIndex) {
+  // console.log('gsxml_local: ' + gamesettingsXML_local)
   let parseString = require("xml2js").parseString
   let xml2js = require("xml2js")
   
@@ -788,6 +804,9 @@ if (typeof config.get('anonymousStats') === 'undefined') {
 }
 if (typeof config.get('periodicCheck') === 'undefined') {
   config.set('periodicCheck', 'disabled')
+}
+if (typeof config.get('periodicCheckAllServers') === 'undefined') {
+  config.set('periodicCheckAllServers', 'disabled')
 }
 if (typeof config.get('minimizeToTray') === 'undefined') {
   config.set('minimizeToTray', 'disabled')
@@ -966,17 +985,34 @@ function setPeriodicCheck(val) {
   if (config.get('periodicCheck') == 'enabled') {
     runPeriodicCheck()
   } else {
-    clearInterval(periodicTimerRunning)
+    clearTimeout(periodicTimerRunning)
   }
 }
 
 function runPeriodicCheck() {
-  clearInterval(periodicTimerRunning)
+  function a() {
+    writeLog('Running Periodic Check for ALL Servers.', 'info')
+    console.log('Running Periodic Check for ALL Servers')
+    periodicTimerRunning = setTimeout(a, config.get('periodicCheckIntervalMS'))
+    checkModsAllServers()
+  }
+  function b() {
+    writeLog('Running Periodic Check.', 'info')
+    console.log('Running Periodic Check')
+    periodicTimerRunning = setTimeout(b, config.get('periodicCheckIntervalMS'))
+    checkMods()
+  }
+
+  clearTimeout(periodicTimerRunning)
   if (config.get('periodicCheck') == 'enabled') {
-    periodicTimerRunning = setInterval(() => {
-      writeLog('Running Periodic Check.', 'info')
-      checkMods()
-    }, config.get('periodicCheckIntervalMS'))
+    console.log('runPeriodicCheck, 1')
+    if (config.get('periodicCheckAllServers') == 'enabled') {
+      console.log('runPeriodicCheck, 2, ' + config.get('periodicCheckIntervalMS'))
+      periodicTimerRunning = setTimeout(a, config.get('periodicCheckIntervalMS'))
+    } else {
+      console.log('runPeriodicCheck, 3, ' + config.get('periodicCheckIntervalMS'))
+      periodicTimerRunning = setTimeout(b, config.get('periodicCheckIntervalMS'))
+    }
   }
 }
 
@@ -1071,7 +1107,8 @@ function randomChars(length) {
 async function getListFromServer() {
   // get json list from server
   writeLog('Getting list from server...')
-  serverUrl = config.get('modserverHostname')
+  // serverUrl = config.get('modserverHostname')
+  serverUrl = modserverUrl
   const urlPath = '/ajax.php?getModList'
   console.log(serverUrl)
   let fetched = await fetch(serverUrl + urlPath)
@@ -1217,6 +1254,7 @@ function welcomeText() {
   writeLog('PeriodicCheck is ' + periodicCheckEnabled + ', Backups are ' + backupEnabled + ', Minimize to Tray is ' + minimizeToTray + '.')
   if(periodicCheckEnabled == 'enabled') {
     writeLog('Periodic check is on. Will automatically start a sync in a few seconds.')
+    // runPeriodicCheck()
   }
   writeLog('Click the [Sync Mods] button to start.')
 }
@@ -1229,6 +1267,7 @@ import nodePath from 'path'
 import md5File from 'md5-file'
 // import { getJSON } from 'jquery'
 import { setInterval } from 'timers/promises'
+import { getJSON } from 'jquery'
 // import { execFile } from 'child_process'
 // import { stdout } from 'process'
 
@@ -1258,7 +1297,19 @@ async function backupMod(mod) {
 
 }
 
+export async function checkModsAllServers() {
+  const slist = getJSONServerList(config.get('servers'))
+
+  slist.forEach(async (element) => {
+    modserverUrl = element.url
+    modsPath = element.folder + '\\mods\\'
+    let x = await checkMods()
+  })
+}
+
+
 export async function checkMods() {
+  // console.log('modfolderLocal: ' + modFolderLocal)
   function checkIfDone() {
     // console.log('dlMods: ' + downloadedMods)
     // console.log('mgList: ' + mergedListForDownload.length)
@@ -1277,8 +1328,8 @@ export async function checkMods() {
     writeLog('File ' + filename + ' downloaded successfully.', 'info');
     checkIfDone()
   }
-  
 
+  console.log('modserverUrl: ' + modserverUrl)
   // need to have a hostname set before it can do anything
   if (modserverUrl === '') {
     return
@@ -1289,13 +1340,16 @@ export async function checkMods() {
   
   // get json list from server
   let getLocalModsListArray = await getLocalModsList()
+  // console.log(getLocalModsListArray)
   let serverModList = await getListFromServer()
+  // console.log(serverModList)
+
   if (!serverModList) {
     return
   }
   // lets divide: check for new mods first:
   let newModsToAdd = await checkForNewMods(serverModList, getLocalModsListArray)
-  //console.log(typeof(newModsToAdd))
+  console.log(newModsToAdd)
   //console.log(newModsToAdd)
   // then check for updates
   let updatableMods = await checkForUpdates(getLocalModsListArray)
@@ -1335,6 +1389,7 @@ export async function checkMods() {
           timeout: 20000
         })
 
+        console.log('modsPath: ' + modsPath)
         dlUrl = setDLUrl()
         const url = dlUrl + el;
         const writer = fs.createWriteStream(modsPath + el);
@@ -1364,11 +1419,8 @@ export async function checkMods() {
       })
     )
   })
+  
 }
-
-
-
-
 
 
 
