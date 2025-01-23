@@ -22,7 +22,6 @@ let anonymousStats = ref('')
 let availableServers = ref('')
 let FSFolderPath = ref('')
 
-
 // ### IPC Handlers
 // const checkMods = () => window.electron.ipcRenderer.send('checkMods')
 const checkMods = () => window.renderer.checkMods()

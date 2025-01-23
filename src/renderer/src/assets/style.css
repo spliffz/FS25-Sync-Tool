@@ -198,6 +198,10 @@ input {
   font-weight: bold !important; 
 }
 
+.openFolder {
+  color: #27d92e;
+}
+
 .img {
   height: 100px
 }

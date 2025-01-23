@@ -105,18 +105,24 @@ function IPC_getServerList() {
   mainWindow.send('IPC_getServerList', [{ data: getJSONServerList(config.get('servers')), name: serverDisplayName, modservID: modIndex }] )
 }
 
-function IPC_profiles_del_server(index) {
+async function IPC_profiles_del_server(index) {
+  // remove directory
+  const folder = config.get('servers')[index].folder
+  fs.rmSync(folder, { recursive: true, force: true })
 
-  // present popup: This will delete the whole profile folder including all the mods for this server.
-
-  // if so > delete
-
+  // clear from dbase
   let slist = getJSONServerList(config.get('servers'))
   let splice = slist.splice(index, 1)
   console.log('[0] Array Entry ' + index + ' Deleted')
   config.set('servers', slist)
+  const currentMSID = config.get('modserverID')
+  if(currentMSID != '0') {
+    config.set('modserverID', currentMSID-1)
+  }
+
   mainWindow.send('IPC_profiles_del_server', {data: 'OK'})
   console.log(config.get('servers'))
+  
 }
 
 function IPC_sendFSClosed() {
@@ -500,6 +506,15 @@ app.whenReady().then(() => {
 
   })
 
+  ipcMain.on('openFolder', (event, props) => {
+    const slist = config.get('servers')
+    
+    let folder = slist[props].folder
+    // console.log(folder)
+    let spawn = require('child_process').spawn
+    spawn('explorer.exe', [`/e,"${folder}"`], {windowsVerbatimArguments: true, shell: true} )
+  })
+
 
   ipcMain.on('profiles_update_server', (event, props) => {
     let slist = getJSONServerList(config.get('servers'))
@@ -520,12 +535,11 @@ app.whenReady().then(() => {
         return el
       }
     })
-
+    
     config.set('servers', arrayz)
     // console.log(arrayz)
     mainWindow.send('IPC_profiles_update_server', { data: 'OK'})
   })
-
 
 
 
@@ -542,7 +556,7 @@ app.whenReady().then(() => {
 })
 
 
-function IPC_profile_openServerInfo(id) {
+async function IPC_profile_openServerInfo(id) {
   // console.log(typeof id)
   let slist = getJSONServerList(config.get('servers'))
 
@@ -556,8 +570,17 @@ function IPC_profile_openServerInfo(id) {
     
     if (index !== -1) {
       let d = slist[index]['url']
-      
-      mainWindow.send('IPC_getServerURL', { data: d, id: id, index: index})
+      let f = slist[index]['folder']
+      // let tmods = ''
+      // const x = fs.readdirSync(f, (err, files) => {
+      //   if(err) {
+      //     console.log(err)
+      //   }
+      //   console.log(files)
+      //   tmods = files.length()
+      // })
+      const tmods = fs.readdirSync(f + "\\mods\\").length
+      mainWindow.send('IPC_getServerURL', { data: d, id: id, index: index, folder: f, totalMods: tmods})
     }
   }
 }
@@ -957,19 +980,6 @@ function runPeriodicCheck() {
   }
 }
 
-let isRunningInterval
-
-async function checkIfFarmSimRunning() {
-  clearInterval(isRunningInterval)
-
-  isRunning('firefox.exe', (status) => {
-    console.log('process Status: ' + status); 
-  } )  
-  isRunningInterval = setTimeout(checkIfFarmSimRunning(), 10000)
-}
-
-// checkIfFarmSimRunning()
-
 
 
 
@@ -995,16 +1005,36 @@ function deletingBackupFiles() {
 function profiles_addServer(url) {
   console.log('profiles_addServer!')
   writeLog('New server added: ' + url, 'info')
-  
+  const id = randomChars(8)
   const servers = getJSONServerList(config.get('servers'))
   console.log(servers)
-  let newServerArray = '{ "id": "' + randomChars(8) + '", "name": "", "url": "' + url + '" }'
+  let folder = join(config.get('profileFolderLocation')[0], 'profiles', id)
+  console.log(folder)
+  let fol = folder.replace(/\\/g, '\\\\')
+  console.log(fol)
+
+  let newServerArray = '{ "id": "' + id + '", "name": "", "url": "' + url + '", "folder": "'+fol+'" }'
+  console.log(newServerArray)
   servers.push(JSON.parse(newServerArray))
   console.log(servers)
 
   config.set('servers', servers)
   console.log('--------------')
   console.log(config.get('servers'))
+
+  let pffl = config.get('profileFolderLocation')[0]
+  let folderLocationPath = join(pffl, 'profiles', id )
+
+  // check if folders exists
+  if(!fs.existsSync(folderLocationPath)) {
+    fs.mkdirSync(folderLocationPath + '\\mods\\', {recursive: true})
+  }
+  
+  // backup and edit gameSettings.xml
+  if(!fs.existsSync(folderLocationPath + '\\backups\\')) {
+    fs.mkdirSync(folderLocationPath + '\\backups\\', {recursive: true})
+  }
+
   IPC_profiles_addServer()
 }
 
@@ -1197,10 +1227,10 @@ import fs, { write } from 'fs'
 import os from 'os'
 import nodePath from 'path'
 import md5File from 'md5-file'
-import { getJSON } from 'jquery'
+// import { getJSON } from 'jquery'
 import { setInterval } from 'timers/promises'
-import { execFile } from 'child_process'
-import { stdout } from 'process'
+// import { execFile } from 'child_process'
+// import { stdout } from 'process'
 
 
 
